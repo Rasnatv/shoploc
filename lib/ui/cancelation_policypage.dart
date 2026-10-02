@@ -273,11 +273,6 @@ class _CancellationPolicyPageState extends State<CancellationPolicyPage> {
       color: _C.searchBg,
       padding: const EdgeInsets.all(16),
       child: Stack(children: [
-        const Positioned(
-          right: -6,
-          bottom: -14,
-          child: Icon(Icons.eco, size: 80, color: Color(0x222F7BE8)),
-        ),
         Row(children: [
           Container(
             width: 52,

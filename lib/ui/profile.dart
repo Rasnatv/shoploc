@@ -142,11 +142,6 @@ class _ProfilePageState extends State<ProfilePage> {
       color: _G.soft,
       padding: const EdgeInsets.all(16),
       child: Stack(children: [
-        const Positioned(
-          right: -6,
-          bottom: -14,
-          child: Icon(Icons.eco, size: 84, color: Color(0x222F7BE8)),
-        ),
         Row(children: [
           Stack(clipBehavior: Clip.none, children: [
             Container(
