@@ -14,7 +14,7 @@ class AppTextStyle {
 
   // 1. Main Headings (Hero, Splash, Brand Headlines)
   static TextStyle get mainHeading => GoogleFonts.playfairDisplay(
-        fontSize: 20,
+        fontSize: 28,
         fontWeight: FontWeight.w700,
         color: AppColors.textPrimary,
         letterSpacing: -0.5,
@@ -22,7 +22,7 @@ class AppTextStyle {
       );
 
   static TextStyle get mainHeadingLight => GoogleFonts.playfairDisplay(
-        fontSize: 23,
+        fontSize: 28,
         fontWeight: FontWeight.w700,
         color: AppColors.textLight,
         letterSpacing: -0.5,

@@ -304,7 +304,7 @@ class OrderDetailsScreen extends StatelessWidget {
                           text: 'Cancel Order',
                           type: ButtonType.outlined,
                           backgroundColor: AppColors.error,
-                          textColor: Colors.white,
+                          textColor: AppColors.error,
                           onPressed: () {
                             showDialog(
                               context: context,

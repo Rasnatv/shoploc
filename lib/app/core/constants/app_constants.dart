@@ -31,6 +31,7 @@ class AppConstants {
   static const String keyOrders = 'shoploc_orders';
   static const String keyRecentlyViewed = 'shoploc_recently_viewed';
   static const String keyNotifications = 'shoploc_notifications';
+  static const String keyReferralCode = 'referral_code';
 
   // Available Coupon Codes
   static const Map<String, double> couponPercentages = {

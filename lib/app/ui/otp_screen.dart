@@ -1,21 +1,26 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../bloc/authbloc/auth_bloc.dart';
 import '../bloc/authbloc/auth_event.dart';
 import '../bloc/authbloc/auth_state.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_style.dart';
 import '../widgets/custom_button.dart';
+import '../widgets/shoploc_logo.dart';
+import 'main_bottom_nav_screen.dart';
 
 class OtpScreen extends StatefulWidget {
   final String destination;
+  final String? userName;
   final String verificationType;
 
   const OtpScreen({
     super.key,
     required this.destination,
-    this.verificationType = 'login',
+    this.userName,
+    this.verificationType = 'register',
   });
 
   @override
@@ -41,7 +46,7 @@ class _OtpScreenState extends State<OtpScreen> {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_resendCountdown > 0) {
-        setState(() => _resendCountdown--);
+        if (mounted) setState(() => _resendCountdown--);
       } else {
         timer.cancel();
       }
@@ -67,7 +72,7 @@ class _OtpScreenState extends State<OtpScreen> {
     if (code.length < 4) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please enter the complete 4-digit code (e.g. 1234)'),
+          content: Text('Please enter any 4-digit verification code (e.g. 1234)'),
           backgroundColor: AppColors.error,
         ),
       );
@@ -78,6 +83,8 @@ class _OtpScreenState extends State<OtpScreen> {
           VerifyOtpEvent(
             otp: code,
             contextType: widget.verificationType,
+            userName: widget.userName,
+            email: widget.destination,
           ),
         );
   }
@@ -87,8 +94,10 @@ class _OtpScreenState extends State<OtpScreen> {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18,color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -96,12 +105,19 @@ class _OtpScreenState extends State<OtpScreen> {
         listener: (context, state) {
           if (state is AuthenticatedState) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Verified successfully!'),
-                backgroundColor: AppColors.success,
+              SnackBar(
+                content: Text('Verified successfully! Welcome, ${state.user.name}!'),
+                backgroundColor: AppColors.brandBlue,
+                duration: const Duration(seconds: 2),
               ),
             );
-            Navigator.of(context).pop();
+            // Navigate directly to Dashboard (MainBottomNavScreen)
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (_) => const MainBottomNavScreen(initialIndex: 0),
+              ),
+              (route) => false,
+            );
           } else if (state is AuthErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.errorMessage), backgroundColor: AppColors.error),
@@ -112,28 +128,85 @@ class _OtpScreenState extends State<OtpScreen> {
           final isLoading = state is AuthLoadingState;
 
           return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Verification Code', style: AppTextStyle.mainHeading),
+                  const Center(
+                    child: ShoplocLogo(fontSize: 24, showTagline: false),
+                  ),
+                  const SizedBox(height: 32),
+
+                  Text(
+                    'Verification Code',
+                    style: GoogleFonts.playfairDisplay(
+                      textStyle: TextStyle(
+                        fontFamily: AppTextStyle.headingFont,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                        letterSpacing: -0.4,
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 8),
+
                   RichText(
                     text: TextSpan(
-                      style: AppTextStyle.description,
+                      style: GoogleFonts.plusJakartaSans(
+                        textStyle: TextStyle(
+                          fontFamily: AppTextStyle.bodyFont,
+                          fontSize: 13.5,
+                          color: AppColors.textSecondary,
+                          height: 1.45,
+                        ),
+                      ),
                       children: [
                         const TextSpan(text: 'We have sent a 4-digit verification code to '),
                         TextSpan(
                           text: widget.destination,
-                          style: AppTextStyle.labelMedium.copyWith(color: AppColors.textPrimary),
+                          style: const TextStyle(
+                            color: AppColors.brandBlue,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 36),
+                  const SizedBox(height: 28),
 
-                  // 4 OTP Boxes
+                  // Easy verification hint box
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryMuted,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.brandBlue.withValues(alpha: 0.2)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline, color: AppColors.brandBlue, size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Quick verification: enter any 4 digits (e.g. 1234) to proceed.',
+                            style: GoogleFonts.plusJakartaSans(
+                              textStyle: TextStyle(
+                                fontFamily: AppTextStyle.bodyFont,
+                                fontSize: 12.5,
+                                color: AppColors.brandBlue,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // 4 OTP Input Boxes
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: List.generate(4, (index) {
@@ -146,7 +219,14 @@ class _OtpScreenState extends State<OtpScreen> {
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
                           maxLength: 1,
-                          style: AppTextStyle.mainHeading.copyWith(fontSize: 22),
+                          autofocus: index == 0,
+                          style: GoogleFonts.plusJakartaSans(
+                            textStyle: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
                           decoration: InputDecoration(
                             counterText: '',
                             contentPadding: EdgeInsets.zero,
@@ -154,11 +234,15 @@ class _OtpScreenState extends State<OtpScreen> {
                             fillColor: AppColors.inputBackground,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: AppColors.borderLight),
+                              borderSide: const BorderSide(color: AppColors.border),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: AppColors.border),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                              borderSide: const BorderSide(color: AppColors.brandBlue, width: 2),
                             ),
                           ),
                           onChanged: (val) {
@@ -177,33 +261,47 @@ class _OtpScreenState extends State<OtpScreen> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Verify CTA
+                  // Verify CTA Button
                   CustomButton(
-                    text: 'Verify & Proceed',
+                    text: 'Verify & Go to Dashboard',
                     isLoading: isLoading,
+                    backgroundColor: AppColors.brandBlue,
                     onPressed: _verifyOtp,
                   ),
                   const SizedBox(height: 24),
 
-                  // Resend countdown
+                  // Resend Countdown
                   Center(
                     child: _resendCountdown > 0
                         ? Text(
                             'Resend code in ${_resendCountdown}s',
-                            style: AppTextStyle.bodySmall,
+                            style: GoogleFonts.plusJakartaSans(
+                              textStyle: TextStyle(
+                                fontFamily: AppTextStyle.bodyFont,
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
                           )
                         : TextButton(
                             onPressed: () {
                               _startTimer();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('A fresh code was sent (Demo code: 1234)'),
+                                  content: Text('A fresh code was sent (Use demo code: 1234)'),
+                                  backgroundColor: AppColors.brandBlue,
                                 ),
                               );
                             },
                             child: Text(
                               'Resend Code',
-                              style: AppTextStyle.labelMedium.copyWith(color: AppColors.primary),
+                              style: GoogleFonts.plusJakartaSans(
+                                textStyle: TextStyle(
+                                  fontFamily: AppTextStyle.bodyFont,
+                                  color: AppColors.brandBlue,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                             ),
                           ),
                   ),
@@ -217,3 +315,5 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 }
 
+// Compatibility alias for LoginOtpScreen
+typedef LoginOtpScreen = OtpScreen;

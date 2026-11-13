@@ -120,26 +120,22 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       return;
     }
 
-    if (AppConstants.couponPercentages.containsKey(code)) {
-      final discountPercent = AppConstants.couponPercentages[code]!;
-      emit(_calculateState(
-        items: current.items,
-        couponCode: code,
-        customMessage: 'Coupon $code applied! ($discountPercent% OFF)',
-      ));
-    } else if (AppConstants.couponFlatDiscounts.containsKey(code)) {
-      final flatDiscount = AppConstants.couponFlatDiscounts[code]!;
-      emit(_calculateState(
-        items: current.items,
-        couponCode: code,
-        customMessage: 'Coupon $code applied! (₹$flatDiscount OFF)',
-      ));
-    } else {
+    final isPercent = AppConstants.couponPercentages.containsKey(code);
+    final isFlat = AppConstants.couponFlatDiscounts.containsKey(code);
+
+    if (!isPercent && !isFlat) {
       emit(current.copyWith(
-        couponMessage: 'Invalid coupon code. Try "SHOPLOC10" or "FIRST50".',
+        couponMessage: 'Invalid coupon code. Try SHOPLOC10 or FESTIVE20',
         isCouponError: true,
       ));
+      return;
     }
+
+    emit(_calculateState(
+      items: current.items,
+      couponCode: code,
+      customMessage: 'Coupon "$code" applied successfully!',
+    ));
   }
 
   void _onRemoveCoupon(
@@ -183,16 +179,16 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         ? 0.0
         : AppConstants.standardShippingFee;
 
-    // Coupon discount
+    // Calculate coupon discount
     double couponDiscount = 0.0;
-    if (couponCode != null && items.isNotEmpty) {
+    if (couponCode != null) {
       if (AppConstants.couponPercentages.containsKey(couponCode)) {
-        final percent = AppConstants.couponPercentages[couponCode]!;
-        couponDiscount = (subtotal * percent) / 100.0;
+        final pct = AppConstants.couponPercentages[couponCode]!;
+        couponDiscount = (subtotal * pct / 100);
       } else if (AppConstants.couponFlatDiscounts.containsKey(couponCode)) {
         couponDiscount = AppConstants.couponFlatDiscounts[couponCode]!;
-        if (couponDiscount > subtotal) couponDiscount = subtotal;
       }
+      couponDiscount = couponDiscount.clamp(0.0, subtotal);
     }
 
     final grandTotal = (subtotal - couponDiscount + deliveryFee).clamp(0.0, double.infinity);

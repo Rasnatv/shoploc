@@ -169,5 +169,25 @@ class LocalStorageService {
   Future<bool> saveNotifications(List<Map<String, dynamic>> notifications) {
     return setString(AppConstants.keyNotifications, jsonEncode(notifications));
   }
+
+  // Google Play Install Referrer (Referral Code)
+  String? getReferralCode() {
+    return getString(AppConstants.keyReferralCode);
+  }
+
+  Future<bool> saveReferralCode(String code) async {
+    final trimmed = code.trim();
+    if (trimmed.isEmpty) return false;
+    return await setString(AppConstants.keyReferralCode, trimmed);
+  }
+
+  bool hasReferralCode() {
+    final code = getReferralCode();
+    return code != null && code.trim().isNotEmpty;
+  }
+
+  Future<bool> clearReferralCode() async {
+    return await remove(AppConstants.keyReferralCode);
+  }
 }
 

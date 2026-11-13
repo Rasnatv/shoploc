@@ -148,7 +148,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         children: [
           Text(
             'Categories',
-              style: AppTextStyle.appBarTitle
+            style: AppTextStyle.appBarTitle.copyWith(
+              fontSize: 21,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.3,
+            ),
           ),
           Text(
             'Shop Indian Silhouettes & Western Outfits',

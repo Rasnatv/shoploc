@@ -329,14 +329,14 @@ class _CartScreenState extends State<CartScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Coupon Box
+                        // Promo / Coupon Code Box
                         if (state.appliedCoupon == null)
                           Row(
                             children: [
                               Expanded(
                                 child: CustomTextField(
                                   controller: _couponController,
-                                  hint: 'REFERAL CODE',
+                                  hint: 'Enter Coupon Code (e.g. SHOPLOC10)',
                                   prefixIcon: const Icon(Icons.local_offer_outlined, size: 18),
                                 ),
                               ),
@@ -353,22 +353,24 @@ class _CartScreenState extends State<CartScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
-                              color: AppColors.successLight,
+                              color: AppColors.success.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                              border: Border.all(color: AppColors.success.withValues(alpha: 0.25)),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.check_circle, size: 18, color: AppColors.success),
+                                const Icon(Icons.check_circle_outline, size: 18, color: AppColors.success),
                                 const SizedBox(width: 8),
-                                Text(
-                                  'referal "${state.appliedCoupon}" applied!',
-                                  style: AppTextStyle.caption.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.success,
+                                Expanded(
+                                  child: Text(
+                                    'Coupon: "${state.appliedCoupon}" Applied',
+                                    style: AppTextStyle.caption.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.success,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                const Spacer(),
                                 GestureDetector(
                                   onTap: () {
                                     _couponController.clear();
@@ -396,9 +398,9 @@ class _CartScreenState extends State<CartScreen> {
                             '- ${Formatters.formatPrice(state.productDiscount)}',
                             color: AppColors.success,
                           ),
-                        if (state.couponDiscount > 0)
+                        if (state.appliedCoupon != null && state.couponDiscount > 0)
                           _buildSummaryRow(
-                            'Coupon Discount',
+                            'Coupon Discount (${state.appliedCoupon})',
                             '- ${Formatters.formatPrice(state.couponDiscount)}',
                             color: AppColors.success,
                           ),

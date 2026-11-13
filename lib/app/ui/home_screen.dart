@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../bloc/homebloc/home_bloc.dart';
 import '../bloc/homebloc/home_event.dart';
 import '../bloc/homebloc/home_state.dart';
@@ -16,6 +17,7 @@ import '../widgets/network_image_with_fallback.dart';
 import '../widgets/product_card.dart';
 import '../widgets/section_header.dart';
 import '../widgets/shoploc_logo.dart';
+import 'enquiry_screen.dart';
 import 'notifications_screen.dart';
 import 'product_details_screen.dart';
 import 'product_list_screen.dart';
@@ -55,14 +57,17 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           BlocBuilder<NotificationBloc, NotificationState>(
             builder: (context, notifState) {
-              final unread = notifState is NotificationLoadedState ? notifState.unreadCount : 0;
+              final unread = notifState is NotificationLoadedState ? notifState
+                  .unreadCount : 0;
               return Stack(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.notifications_none_rounded, size: 24),
+                    icon: const Icon(
+                        Icons.notifications_none_rounded, size: 24),
                     onPressed: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const NotificationsScreen()),
                       );
                     },
                   ),
@@ -76,7 +81,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: AppColors.primary,
                           shape: BoxShape.circle,
                         ),
-                        constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+                        constraints: const BoxConstraints(
+                            minWidth: 14, minHeight: 14),
                         child: Text(
                           '$unread',
                           textAlign: TextAlign.center,
@@ -106,10 +112,12 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Failed to load collections', style: AppTextStyle.sectionHeading),
+                  Text('Failed to load collections',
+                      style: AppTextStyle.sectionHeading),
                   const SizedBox(height: 12),
                   ElevatedButton(
-                    onPressed: () => context.read<HomeBloc>().add(const LoadHomeDataEvent()),
+                    onPressed: () =>
+                        context.read<HomeBloc>().add(const LoadHomeDataEvent()),
                     child: const Text('Try Again'),
                   ),
                 ],
@@ -141,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Shop by Categories
                     _buildCategoriesSection(state),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 24),
 
                     // New Arrivals
                     _buildHorizontalProductSection(
@@ -239,7 +247,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: AppColors.divider,
                 margin: const EdgeInsets.symmetric(horizontal: 8),
               ),
-              const Icon(Icons.tune_rounded, color: AppColors.primary, size: 20),
+              const Icon(
+                  Icons.tune_rounded, color: AppColors.primary, size: 20),
             ],
           ),
         ),
@@ -267,10 +276,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (banner.categoryId != null) {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => ProductListScreen(
-                            initialCategoryId: banner.categoryId,
-                            categoryTitle: banner.title,
-                          ),
+                          builder: (_) =>
+                              ProductListScreen(
+                                initialCategoryId: banner.categoryId,
+                                categoryTitle: banner.title,
+                              ),
                         ),
                       );
                     }
@@ -317,7 +327,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 if (banner.discountText != null) ...[
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
                                       color: AppColors.primary,
                                       borderRadius: BorderRadius.circular(4),
@@ -343,7 +354,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTextStyle.caption.copyWith(
-                                    color: AppColors.textLight.withValues(alpha: 0.85),
+                                    color: AppColors.textLight.withValues(
+                                        alpha: 0.85),
                                   ),
                                 ),
                               ],
@@ -404,10 +416,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => ProductListScreen(
-                        initialCategoryId: cat.id,
-                        categoryTitle: cat.name,
-                      ),
+                      builder: (_) =>
+                          ProductListScreen(
+                            initialCategoryId: cat.id,
+                            categoryTitle: cat.name,
+                          ),
                     ),
                   );
                 },
@@ -420,7 +433,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 64,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.borderLight, width: 1.5),
+                          border: Border.all(
+                              color: AppColors.borderLight, width: 1.5),
                           boxShadow: const [
                             BoxShadow(
                               color: AppColors.shadow,
@@ -503,18 +517,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       isWishlisted: isWishlisted,
                       onTap: () {
                         context.read<ProductBloc>().add(
-                              LoadProductDetailsEvent(productId: product.id),
-                            );
+                          LoadProductDetailsEvent(productId: product.id),
+                        );
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => ProductDetailsScreen(product: product),
+                            builder: (_) =>
+                                ProductDetailsScreen(product: product),
                           ),
                         );
                       },
                       onWishlistTap: () {
                         context.read<WishlistBloc>().add(
-                              ToggleWishlistEvent(product: product),
-                            );
+                          ToggleWishlistEvent(product: product),
+                        );
                       },
                     ),
                   );
@@ -535,7 +550,8 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: AppColors.blush,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.3)),
+          border: Border.all(
+              color: AppColors.primaryLight.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -545,7 +561,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: AppColors.primary,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.local_offer_outlined, color: Colors.white, size: 22),
+              child: const Icon(
+                  Icons.local_offer_outlined, color: Colors.white, size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -554,12 +571,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     'Flat 10% OFF with "SHOPLOC10"',
-                    style: AppTextStyle.labelLarge.copyWith(color: AppColors.primaryDark),
+                    style: AppTextStyle.labelLarge.copyWith(
+                        color: AppColors.primaryDark),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     'Applicable on all Co-Ord Sets & Kurtas above ₹999.',
-                    style: AppTextStyle.caption.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyle.caption.copyWith(
+                        color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -587,7 +606,8 @@ class _HomeScreenState extends State<HomeScreen> {
               onActionTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const ProductListScreen(categoryTitle: 'Best Sellers'),
+                    builder: (_) =>
+                    const ProductListScreen(categoryTitle: 'Best Sellers'),
                   ),
                 );
               },
@@ -598,7 +618,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: state.bestSellers.take(4).length,
+                itemCount: state.bestSellers
+                    .take(4)
+                    .length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   childAspectRatio: 0.65,
@@ -614,18 +636,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     isWishlisted: isWishlisted,
                     onTap: () {
                       context.read<ProductBloc>().add(
-                            LoadProductDetailsEvent(productId: product.id),
-                          );
+                        LoadProductDetailsEvent(productId: product.id),
+                      );
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => ProductDetailsScreen(product: product),
+                          builder: (_) =>
+                              ProductDetailsScreen(product: product),
                         ),
                       );
                     },
                     onWishlistTap: () {
                       context.read<WishlistBloc>().add(
-                            ToggleWishlistEvent(product: product),
-                          );
+                        ToggleWishlistEvent(product: product),
+                      );
                     },
                   );
                 },
@@ -637,33 +660,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-  Widget _buildPromisePill(IconData icon, String title, String subtitle) {
-    return Expanded(
-      child: Column(
-        children: [
-          Icon(icon, size: 22, color: AppColors.primary),
-          const SizedBox(height: 6),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: AppTextStyle.caption.copyWith(
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
-              fontSize: 11,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            subtitle,
-            textAlign: TextAlign.center,
-            style: AppTextStyle.caption.copyWith(
-              fontSize: 9,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

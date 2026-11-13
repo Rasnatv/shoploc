@@ -4,6 +4,7 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_style.dart';
 import '../widgets/network_image_with_fallback.dart';
 import '../widgets/shoploc_logo.dart';
+import 'checkout_auth_screen.dart';
 import 'main_bottom_nav_screen.dart';
 
 class OnboardingItem {
@@ -39,27 +40,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       tag: '✨ Handpicked Boutique Drops',
       title: 'Discover Handcrafted\nWomen\'s Fashion',
       description:
-      'Connect with regional artisans and boutiques. Explore breezy Co-Ord sets, tailored Kurtas, and contemporary festive silhouettes.',
-      imageUrl:
-      'assets/images/onboarding.jpg',
+          'Connect with regional artisans and boutiques. Explore breezy Co-Ord sets, tailored Kurtas, and contemporary festive silhouettes.',
+      imageUrl: 'assets/images/onboarding.jpg',
     ),
     OnboardingItem(
       categoryTag: 'COLLECTION 02 OF 03',
       tag: '🌿 Minimalist Fashion',
       title: 'Trending Styles,\nTailored Comfort',
       description:
-      'Experience curated drops with breathable fabrics, artisanal block prints, and flattering fits designed to elevate your everyday wardrobe.',
-      imageUrl:
-      'assets/images/onboarding2.png',
+          'Experience curated drops with breathable fabrics, artisanal block prints, and flattering fits designed to elevate your everyday wardrobe.',
+      imageUrl: 'assets/images/onboarding2.png',
     ),
     OnboardingItem(
       categoryTag: 'COLLECTION 03 OF 03',
       tag: '🚀 Shop Local • Shop Smart',
       title: 'Seamless Shopping,\nDelivered with Love',
       description:
-      'Direct boutique-to-doorstep delivery across Kerala & India with verified secure checkout, live order tracking, and instant support.',
-      imageUrl:
-      'assets/images/ondelivered.png',
+          'Direct boutique-to-doorstep delivery across Kerala & India with verified secure checkout, live order tracking, and instant support.',
+      imageUrl: 'assets/images/ondelivered.png',
     ),
   ];
 
@@ -69,7 +67,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (_, _, _) => const MainBottomNavScreen(),
+        pageBuilder: (_, _, _) => const CheckoutAuthScreen(
+          initialIsRegister: true,
+          isFromOnboarding: true,
+        ),
         transitionsBuilder: (_, animation, _, child) =>
             FadeTransition(opacity: animation, child: child),
         transitionDuration: const Duration(milliseconds: 400),
@@ -370,13 +371,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               borderRadius: BorderRadius.circular(4),
                               boxShadow: isActive
                                   ? [
-                                BoxShadow(
-                                  color: AppColors.brandOrange
-                                      .withValues(alpha: 0.35),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ]
+                                      BoxShadow(
+                                        color: AppColors.brandOrange
+                                            .withValues(alpha: 0.35),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ]
                                   : null,
                             ),
                           );
@@ -414,8 +415,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             boxShadow: [
                               BoxShadow(
                                 color: (isLastPage
-                                    ? AppColors.brandOrange
-                                    : AppColors.brandBlue)
+                                        ? AppColors.brandOrange
+                                        : AppColors.brandBlue)
                                     .withValues(alpha: 0.35),
                                 blurRadius: 14,
                                 offset: const Offset(0, 5),

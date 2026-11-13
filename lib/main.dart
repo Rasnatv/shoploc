@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -125,3 +124,33 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
+
+///referal via
+///
+// import 'package:flutter/material.dart';
+// import 'services/referral_service.dart';
+// import 'screens/register_screen.dart';
+//
+// Future<void> main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//
+//   // Referral code ആദ്യം വായിക്കുക (runApp-ന് മുമ്പ്)
+//   await ReferralService.capture();
+//
+//   runApp(const MyApp());
+// }
+//
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'ShopLoc',
+//       debugShowCheckedModeBanner: false,
+//       home: const RegisterScreen(),
+//     );
+//   }
+// }

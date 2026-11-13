@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/constants/app_constants.dart';
+import '../core/services/referral_service.dart';
 import '../core/storage/local_storage_service.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_style.dart';
@@ -108,6 +109,9 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _checkNextScreen() async {
     final storage = await LocalStorageService.getInstance();
+
+    // Check Google Play Install Referrer asynchronously without delaying splash transition
+    unawaited(ReferralService.init(storage));
 
     _navTimer = Timer(const Duration(milliseconds: 2400), () {
       if (!mounted) return;
@@ -231,10 +235,30 @@ class _SplashScreenState extends State<SplashScreen>
                               horizontal: 28,
                               vertical: 22,
                             ),
-
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(28),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.brandBlue.withValues(alpha: 0.08),
+                                  blurRadius: 32,
+                                  offset: const Offset(0, 12),
+                                  spreadRadius: 2,
+                                ),
+                                BoxShadow(
+                                  color: AppColors.brandOrange.withValues(alpha: 0.08),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                              border: Border.all(
+                                color: AppColors.borderLight.withValues(alpha: 0.8),
+                                width: 1.2,
+                              ),
+                            ),
                             child: Image.asset(
-                              'assets/images/shoploclogonew.png',
-                              height: 100,
+                              'assets/images/shoploc_logo.png',
+                              height: 95,
                               fit: BoxFit.contain,
                               semanticLabel: 'Shoploc Official Logo',
                             ),

@@ -20,9 +20,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onCheckAuthStatus(
-      CheckAuthStatusEvent event,
-      Emitter<AuthState> emit,
-      ) async {
+    CheckAuthStatusEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthLoadingState());
     await Future.delayed(const Duration(milliseconds: 300));
 
@@ -43,9 +43,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onLogin(
-      LoginEvent event,
-      Emitter<AuthState> emit,
-      ) async {
+    LoginEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthLoadingState(loadingMessage: 'Signing in to Shoploc...'));
     await Future.delayed(const Duration(milliseconds: 400));
 
@@ -76,13 +76,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     await _storageService.setLoggedIn(true);
     await _storageService.saveCurrentUser(user.toMap());
 
+    // Retain locally stored referral code for future Referral Claim API
+    final referralCode = _storageService.getReferralCode();
+    if (referralCode != null && referralCode.isNotEmpty) {
+      // ignore: avoid_print
+      print('[AuthBloc] Active Google Play referral code found: $referralCode for verified user "${user.name}" (retained in LocalStorageService)');
+    }
+
     emit(AuthenticatedState(user: user));
   }
 
   Future<void> _onRegister(
-      RegisterEvent event,
-      Emitter<AuthState> emit,
-      ) async {
+    RegisterEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthLoadingState(loadingMessage: 'Creating your Shoploc account...'));
     await Future.delayed(const Duration(milliseconds: 400));
 
@@ -107,13 +114,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     await _storageService.setLoggedIn(true);
     await _storageService.saveCurrentUser(user.toMap());
 
+    // Retain locally stored referral code for future Referral Claim API
+    final referralCode = _storageService.getReferralCode();
+    if (referralCode != null && referralCode.isNotEmpty) {
+      // ignore: avoid_print
+      print('[AuthBloc] Active Google Play referral code found: $referralCode for verified user "${user.name}" (retained in LocalStorageService)');
+    }
+
     emit(AuthenticatedState(user: user));
   }
 
   Future<void> _onForgotPassword(
-      ForgotPasswordEvent event,
-      Emitter<AuthState> emit,
-      ) async {
+    ForgotPasswordEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthLoadingState(loadingMessage: 'Sending recovery OTP...'));
     await Future.delayed(const Duration(milliseconds: 500));
 
@@ -126,9 +140,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onVerifyOtp(
-      VerifyOtpEvent event,
-      Emitter<AuthState> emit,
-      ) async {
+    VerifyOtpEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthLoadingState(loadingMessage: 'Verifying code...'));
     await Future.delayed(const Duration(milliseconds: 350));
 
@@ -156,13 +170,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     await _storageService.setLoggedIn(true);
     await _storageService.saveCurrentUser(user.toMap());
 
+    // Retain locally stored referral code for future Referral Claim API
+    final referralCode = _storageService.getReferralCode();
+    if (referralCode != null && referralCode.isNotEmpty) {
+      // ignore: avoid_print
+      print('[AuthBloc] Active Google Play referral code found: $referralCode for verified user "${user.name}" (retained in LocalStorageService)');
+    }
+
     emit(AuthenticatedState(user: user));
   }
 
   Future<void> _onLogout(
-      LogoutEvent event,
-      Emitter<AuthState> emit,
-      ) async {
+    LogoutEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthLoadingState());
     await _storageService.clearUserSession();
     emit(const UnauthenticatedState(message: 'Logged out successfully.'));
