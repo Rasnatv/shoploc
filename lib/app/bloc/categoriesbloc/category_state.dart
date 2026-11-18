@@ -1,6 +1,4 @@
-
-
-import '../../data/models/category_model.dart';
+import '../../data/models/models/homemodel.dart';
 
 abstract class CategoryState {
   const CategoryState();
@@ -15,8 +13,9 @@ class CategoryLoadingState extends CategoryState {
 }
 
 class CategoryLoadedState extends CategoryState {
-  final List<CategoryModel> categories;
-  final String? selectedCategoryId;
+  /// Parent categories; each carries its subcategories in [children].
+  final List<CategoryApiModel> categories;
+  final int? selectedCategoryId;
 
   const CategoryLoadedState({
     required this.categories,
@@ -28,4 +27,3 @@ class CategoryErrorState extends CategoryState {
   final String errorMessage;
   const CategoryErrorState({required this.errorMessage});
 }
-

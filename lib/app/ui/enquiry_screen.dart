@@ -144,10 +144,6 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.textPrimary),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         title: Text(
           'Enquiry & Support',
           style: AppTextStyle.appBarTitle,
@@ -372,24 +368,24 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                           onPressed: _isSubmitting ? null : _sendMessage,
                           child: _isSubmitting
                               ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
                               : Text(
-                            'SEND MESSAGE',
-                            style: GoogleFonts.plusJakartaSans(
-                              textStyle: TextStyle(
-                                fontFamily: AppTextStyle.bodyFont,
-                                fontSize: 14.5,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                          ),
+                                  'SEND MESSAGE',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    textStyle: TextStyle(
+                                      fontFamily: AppTextStyle.bodyFont,
+                                      fontSize: 14.5,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: 0.8,
+                                    ),
+                                  ),
+                                ),
                         ),
                       ),
                     ],

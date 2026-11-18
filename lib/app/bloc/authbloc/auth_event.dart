@@ -1,55 +1,29 @@
-abstract class AuthEvent {
-  const AuthEvent();
-}
+part of 'auth_bloc.dart';
 
-class CheckAuthStatusEvent extends AuthEvent {
-  const CheckAuthStatusEvent();
-}
+abstract class AuthEvent {}
 
-class LoginEvent extends AuthEvent {
-  final String emailOrPhone;
-  final String password;
-
-  const LoginEvent({
-    required this.emailOrPhone,
-    this.password = '',
-  });
-}
-
-class RegisterEvent extends AuthEvent {
-  final String name;
-  final String email;
-  final String phone;
-  final String password;
-
-  const RegisterEvent({
+class RegisterRequested extends AuthEvent {
+  final String name, email, referralCode;
+  RegisterRequested({
     required this.name,
     required this.email,
-    this.phone = '',
-    this.password = '',
+    this.referralCode = '',
   });
 }
 
-class ForgotPasswordEvent extends AuthEvent {
+class LoginRequested extends AuthEvent {
   final String email;
-
-  const ForgotPasswordEvent({required this.email});
+  LoginRequested({required this.email});
 }
 
-class VerifyOtpEvent extends AuthEvent {
-  final String otp;
-  final String contextType;
-  final String? userName;
-  final String? email;
-
-  const VerifyOtpEvent({
+class VerifyOtpRequested extends AuthEvent {
+  final String email, otp;
+  final bool isRegister;
+  VerifyOtpRequested({
+    required this.email,
     required this.otp,
-    this.contextType = 'login',
-    this.userName,
-    this.email,
+    required this.isRegister,
   });
 }
 
-class LogoutEvent extends AuthEvent {
-  const LogoutEvent();
-}
+class ResendOtpRequested extends AuthEvent {}

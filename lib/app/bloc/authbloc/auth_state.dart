@@ -1,47 +1,31 @@
+part of 'auth_bloc.dart';
 
 
-import '../../data/models/user_model.dart';
 
-abstract class AuthState {
-  const AuthState();
-}
+abstract class AuthState {}
 
-class AuthInitialState extends AuthState {
-  const AuthInitialState();
-}
+class AuthInitialState extends AuthState {}
 
-class AuthLoadingState extends AuthState {
-  final String? loadingMessage;
-  const AuthLoadingState({this.loadingMessage});
+class AuthLoadingState extends AuthState {}
+
+class OtpSentState extends AuthState {
+  final String email, message;
+  final bool isRegister;
+  final bool isResend;
+  OtpSentState({
+    required this.email,
+    required this.message,
+    required this.isRegister,
+    this.isResend = false,
+  });
 }
 
 class AuthenticatedState extends AuthState {
   final UserModel user;
-  const AuthenticatedState({required this.user});
-}
-
-class UnauthenticatedState extends AuthState {
-  final String? message;
-  const UnauthenticatedState({this.message});
+  AuthenticatedState(this.user);
 }
 
 class AuthErrorState extends AuthState {
   final String errorMessage;
-  const AuthErrorState({required this.errorMessage});
+  AuthErrorState(this.errorMessage);
 }
-
-class OtpSentState extends AuthState {
-  final String destination;
-  final String verificationType;
-
-  const OtpSentState({
-    required this.destination,
-    required this.verificationType,
-  });
-}
-
-class PasswordResetSentState extends AuthState {
-  final String email;
-  const PasswordResetSentState({required this.email});
-}
-

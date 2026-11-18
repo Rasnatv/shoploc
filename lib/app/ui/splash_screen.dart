@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
 import '../core/constants/app_constants.dart';
 import '../core/services/referral_service.dart';
-import '../core/storage/local_storage_service.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_style.dart';
-import 'main_bottom_nav_screen.dart';
-import 'onboarding_screen.dart';
+import '../core/utils/object_factory.dart';
+
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -34,13 +35,11 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // 1. Entrance animation for the official logo and brand text
     _entranceController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
     );
 
-    // Spring scale for the official logo
     _logoScale = Tween<double>(begin: 0.72, end: 1.0).animate(
       CurvedAnimation(
         parent: _entranceController,
@@ -48,7 +47,6 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Smooth fade in
     _logoFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _entranceController,
@@ -56,7 +54,6 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Gentle upward slide for logo
     _logoSlide = Tween<Offset>(
       begin: const Offset(0, 0.18),
       end: Offset.zero,
@@ -67,7 +64,6 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Staggered tagline fade and slide
     _taglineFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _entranceController,
@@ -85,7 +81,6 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Footer fade
     _footerFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _entranceController,
@@ -93,7 +88,6 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // 2. Continuous breathing aura animation
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
@@ -107,34 +101,19 @@ class _SplashScreenState extends State<SplashScreen>
     _checkNextScreen();
   }
 
-  Future<void> _checkNextScreen() async {
-    final storage = await LocalStorageService.getInstance();
+  void _checkNextScreen() {
+    final prefs = ObjectFactory().prefs;
 
-    // Check Google Play Install Referrer asynchronously without delaying splash transition
-    unawaited(ReferralService.init(storage));
+    // Read the Play Store install referrer in the background (once per install).
+    unawaited(ReferralService.captureInstallReferrer());
 
     _navTimer = Timer(const Duration(milliseconds: 2400), () {
       if (!mounted) return;
-      final bool onboardingComplete = storage.isOnboardingComplete();
 
-      if (onboardingComplete) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (_, _, _) => const MainBottomNavScreen(),
-            transitionsBuilder: (_, animation, _, child) =>
-                FadeTransition(opacity: animation, child: child),
-            transitionDuration: const Duration(milliseconds: 450),
-          ),
-        );
+      if (prefs.isOnboardingComplete()) {
+        context.go('/home'); // guests can browse; login happens at checkout
       } else {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (_, _, _) => const OnboardingScreen(),
-            transitionsBuilder: (_, animation, _, child) =>
-                FadeTransition(opacity: animation, child: child),
-            transitionDuration: const Duration(milliseconds: 450),
-          ),
-        );
+        context.go('/onboarding');
       }
     });
   }
@@ -153,7 +132,6 @@ class _SplashScreenState extends State<SplashScreen>
       backgroundColor: AppColors.scaffoldBackground,
       body: Stack(
         children: [
-          // Ambient background decorative blobs
           Positioned(
             top: -120,
             right: -100,
@@ -189,16 +167,13 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
 
-          // Center: Hero Official Shoploc Logo with Animated Glow
           Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Animated Breathing Glow + Official Logo Card
                 Stack(
                   alignment: Alignment.center,
                   children: [
-                    // Breathing Aura Glow
                     AnimatedBuilder(
                       animation: _auraScale,
                       builder: (context, child) {
@@ -222,8 +197,6 @@ class _SplashScreenState extends State<SplashScreen>
                         );
                       },
                     ),
-
-                    // Official Shoploc Logo Card with Spring Entrance
                     FadeTransition(
                       opacity: _logoFade,
                       child: SlideTransition(
@@ -240,19 +213,22 @@ class _SplashScreenState extends State<SplashScreen>
                               borderRadius: BorderRadius.circular(28),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.brandBlue.withValues(alpha: 0.08),
+                                  color: AppColors.brandBlue
+                                      .withValues(alpha: 0.08),
                                   blurRadius: 32,
                                   offset: const Offset(0, 12),
                                   spreadRadius: 2,
                                 ),
                                 BoxShadow(
-                                  color: AppColors.brandOrange.withValues(alpha: 0.08),
+                                  color: AppColors.brandOrange
+                                      .withValues(alpha: 0.08),
                                   blurRadius: 20,
                                   offset: const Offset(0, 4),
                                 ),
                               ],
                               border: Border.all(
-                                color: AppColors.borderLight.withValues(alpha: 0.8),
+                                color: AppColors.borderLight
+                                    .withValues(alpha: 0.8),
                                 width: 1.2,
                               ),
                             ),
@@ -271,7 +247,6 @@ class _SplashScreenState extends State<SplashScreen>
 
                 const SizedBox(height: 28),
 
-                // Animated Tagline & Description
                 FadeTransition(
                   opacity: _taglineFade,
                   child: SlideTransition(
@@ -305,7 +280,6 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
 
-          // Bottom: Animated Loader & Branding Footer
           Positioned(
             bottom: 44,
             left: 0,
@@ -314,7 +288,6 @@ class _SplashScreenState extends State<SplashScreen>
               opacity: _footerFade,
               child: Column(
                 children: [
-                  // Sleek dual-color pulsing dots loader
                   const _PulsingDotsIndicator(),
                   const SizedBox(height: 16),
                   Text(
@@ -336,7 +309,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-/// Smooth 3-dot pulsating indicator using Shoploc brand colors.
+/// 3-dot pulsating indicator using Shoploc brand colors.
 class _PulsingDotsIndicator extends StatefulWidget {
   const _PulsingDotsIndicator();
 
@@ -372,11 +345,12 @@ class _PulsingDotsIndicatorState extends State<_PulsingDotsIndicator>
           mainAxisSize: MainAxisSize.min,
           children: List.generate(3, (index) {
             final double delay = index * 0.25;
-            final double progress = (_dotController.value - delay).clamp(0.0, 1.0);
-            final double scale = 0.6 + (0.5 * (1.0 - (progress - 0.5).abs() * 2));
-            final Color dotColor = index == 1
-                ? AppColors.brandOrange
-                : AppColors.brandBlue;
+            final double progress =
+            (_dotController.value - delay).clamp(0.0, 1.0);
+            final double scale =
+                0.6 + (0.5 * (1.0 - (progress - 0.5).abs() * 2));
+            final Color dotColor =
+            index == 1 ? AppColors.brandOrange : AppColors.brandBlue;
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),

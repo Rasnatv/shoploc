@@ -1,4 +1,4 @@
-class ProductModel {
+class DummyProductModel {
   final String id;
   final String name;
   final String subtitle;
@@ -28,7 +28,7 @@ class ProductModel {
   double get price => discountedPrice;
   bool get hasDiscount => originalPrice > discountedPrice;
 
-  const ProductModel({
+  const DummyProductModel({
     required this.id,
     required this.name,
     required this.subtitle,
@@ -84,8 +84,8 @@ class ProductModel {
     };
   }
 
-  factory ProductModel.fromMap(Map<String, dynamic> map) {
-    return ProductModel(
+  factory DummyProductModel.fromMap(Map<String, dynamic> map) {
+    return DummyProductModel(
       id: map['id']?.toString() ?? '',
       name: map['name']?.toString() ?? '',
       subtitle: map['subtitle']?.toString() ?? '',
