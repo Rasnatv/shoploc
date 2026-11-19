@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 import '../core/error/api_error handler.dart';
 import '../core/utils/object_factory.dart';
-import '../data/models/models/loginrequestmodel.dart';
-import '../data/models/models/loginresponsemodel.dart';
-import '../data/models/models/otp_responsivemodel.dart';
-import '../data/models/models/otprequestmodel.dart';
-import '../data/models/models/registerrequestmodel.dart';
-import '../data/models/models/registerresponsemodel.dart';
+import '../data/models/loginrequestmodel.dart';
+import '../data/models/loginresponsemodel.dart';
+import '../data/models/otp_responsivemodel.dart';
+import '../data/models/otprequestmodel.dart';
+import '../data/models/registerrequestmodel.dart';
+import '../data/models/registerresponsemodel.dart';
 import '../data/models/statemodel.dart';
 
 class AuthProvider {

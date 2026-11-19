@@ -1,15 +1,18 @@
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shoploc/app/bloc/productlistbloc/productlist_event.dart';
 import 'package:shoploc/app/bloc/productlistbloc/productlist_state.dart';
 import '../../apiprovider/productlistprovider.dart';
+import '../../apiprovider/recentviewprovider.dart';
 import '../../core/utils/productlisttype.dart';
-import '../../data/models/models/productlistmodel.dart';
+import '../../data/models/productlistmodel.dart';
 import '../../data/models/statemodel.dart';
 
 
 class ProductListBloc extends Bloc<ProductListEvent, ProductListState> {
   final ProductListType type;
   final ProductListProvider _provider;
+  final RecentViewProvider _recentProvider = RecentViewProvider();
   static const int perPage = 10;
 
   ProductListBloc({required this.type, ProductListProvider? provider})
@@ -28,6 +31,8 @@ class ProductListBloc extends Bloc<ProductListEvent, ProductListState> {
         return _provider.trendingProvider(page: page, perPage: perPage);
       case ProductListType.bestSellers:
         return _provider.bestSellersProvider(page: page, perPage: perPage);
+      case ProductListType.recentViews:
+        return _recentProvider.recentViewsProvider(page: page, perPage: perPage);
     }
   }
 

@@ -1,53 +1,46 @@
-//
-// import '../../data/models/product_model.dart';
-//
-// abstract class CartEvent {
-//   const CartEvent();
-// }
-//
-// class LoadCartEvent extends CartEvent {
-//   const LoadCartEvent();
-// }
-//
-// class AddToCartEvent extends CartEvent {
-//   final ProductModel product;
-//   final String selectedSize;
-//   final String selectedColor;
-//   final int quantity;
-//
-//   const AddToCartEvent({
-//     required this.product,
-//     required this.selectedSize,
-//     required this.selectedColor,
-//     this.quantity = 1,
-//   });
-// }
-//
-// class UpdateCartQuantityEvent extends CartEvent {
-//   final String cartItemId;
-//   final int newQuantity;
-//
-//   const UpdateCartQuantityEvent({
-//     required this.cartItemId,
-//     required this.newQuantity,
-//   });
-// }
-//
-// class RemoveFromCartEvent extends CartEvent {
-//   final String cartItemId;
-//   const RemoveFromCartEvent({required this.cartItemId});
-// }
-//
-// class ApplyCouponEvent extends CartEvent {
-//   final String couponCode;
-//   const ApplyCouponEvent({required this.couponCode});
-// }
-//
-// class RemoveCouponEvent extends CartEvent {
-//   const RemoveCouponEvent();
-// }
-//
-// class ClearCartEvent extends CartEvent {
-//   const ClearCartEvent();
-// }
-//
+abstract class CartEvent {
+  const CartEvent();
+}
+
+/// First load - shows a loader.
+class LoadCartEvent extends CartEvent {
+  const LoadCartEvent();
+}
+
+/// Reload silently (pull-to-refresh / tab tap) - keeps the list on screen.
+class RefreshCartEvent extends CartEvent {
+  const RefreshCartEvent();
+}
+
+/// POST /cart/add
+class AddToCartEvent extends CartEvent {
+  final int productId;
+  final int colorId;
+  final String size;
+  final int quantity;
+  const AddToCartEvent({
+    required this.productId,
+    required this.colorId,
+    required this.size,
+    this.quantity = 1,
+  });
+}
+
+/// POST /cart/update  (+ / - buttons)
+class UpdateCartQuantityEvent extends CartEvent {
+  final int cartItemId;
+  final int quantity;
+  const UpdateCartQuantityEvent(
+      {required this.cartItemId, required this.quantity});
+}
+
+/// POST /cart/remove  (delete icon / swipe)
+class RemoveCartItemEvent extends CartEvent {
+  final int cartItemId;
+  const RemoveCartItemEvent({required this.cartItemId});
+}
+
+/// Local reset only (call on logout). Does NOT call the API.
+class ResetCartEvent extends CartEvent {
+  const ResetCartEvent();
+}

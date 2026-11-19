@@ -1,5 +1,5 @@
 
-import '../../data/models/models/homemodel.dart';
+import '../../data/models/homemodel.dart';
 
 abstract class ProductListState {
   const ProductListState();

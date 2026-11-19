@@ -2,10 +2,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shoploc/app/core/utils/object_factory.dart';
 
 import '../../apiprovider/auth_provider.dart';
-import '../../data/models/models/loginrequestmodel.dart';
-import '../../data/models/models/otp_responsivemodel.dart';
-import '../../data/models/models/otprequestmodel.dart';
-import '../../data/models/models/registerrequestmodel.dart';
+import '../../data/models/loginrequestmodel.dart';
+import '../../data/models/otp_responsivemodel.dart';
+import '../../data/models/otprequestmodel.dart';
+import '../../data/models/registerrequestmodel.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';

@@ -1,4 +1,4 @@
-enum ProductListType { newArrivals, trending, bestSellers }
+enum ProductListType { newArrivals, trending, bestSellers, recentViews }
 
 extension ProductListTypeX on ProductListType {
   String get title {
@@ -9,6 +9,8 @@ extension ProductListTypeX on ProductListType {
         return 'Trending Right Now';
       case ProductListType.bestSellers:
         return 'Best Sellers';
+      case ProductListType.recentViews:
+        return 'Recently Viewed';
     }
   }
 }

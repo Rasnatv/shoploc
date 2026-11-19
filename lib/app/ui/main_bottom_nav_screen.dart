@@ -1,11 +1,11 @@
+//
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import '../bloc/cartbloc/cart_bloc.dart';
-// import '../bloc/cartbloc/cart_state.dart';
+// import '../bloc/cartbloc/cart_event.dart';
 // import '../bloc/whishlistbloc/wishlist_bloc.dart';
-// import '../bloc/whishlistbloc/wishlist_state.dart';
+// import '../bloc/whishlistbloc/wishlist_event.dart';
 // import '../core/theme/app_colors.dart';
-// import '../core/theme/app_text_style.dart';
 // import 'cart_screen.dart';
 // import 'categories_screen.dart';
 // import 'home_screen.dart';
@@ -17,10 +17,10 @@
 //   const MainBottomNavScreen({super.key, this.initialIndex = 0});
 //
 //   @override
-//   State<MainBottomNavScreen> createState() => MainBottomNavScreenState();
+//   State<MainBottomNavScreen> createState() => _MainBottomNavScreenState();
 // }
 //
-// class MainBottomNavScreenState extends State<MainBottomNavScreen> {
+// class _MainBottomNavScreenState extends State<MainBottomNavScreen> {
 //   late int _currentIndex;
 //
 //   @override
@@ -29,34 +29,31 @@
 //     _currentIndex = widget.initialIndex;
 //   }
 //
-//   void switchTab(int index) {
-//     if (mounted) {
-//       setState(() => _currentIndex = index);
-//     }
-//   }
-//
 //   @override
 //   Widget build(BuildContext context) {
-//     final screens = [
-//       HomeScreen(onNavigateToCategory: () => switchTab(1)),
-//       const CategoriesScreen(),
-//       WishlistScreen(onGoShopping: () => switchTab(0)),
-//       CartScreen(onGoShopping: () => switchTab(0)),
-//      ProfileScreen(
-//         onNavigateToOrders: () {},
-//         onNavigateToWishlist: () => switchTab(2),
+//     // final screens = <Widget>[
+//     //   const HomeScreen(),
+//     //   const CategoriesScreen(),
+//     //   const WishlistScreen(),
+//     //   const CartScreen(),
+//     //   const ProfileScreen(),
+//     // ];
+//     final screens = <Widget>[
+//       HomeScreen(
+//         onNavigateToCategory: () => setState(() => _currentIndex = 1),
 //       ),
+//       const CategoriesScreen(),
+//       WishlistScreen(onGoShopping: () => setState(() => _currentIndex = 0)),
+//       CartScreen(onGoShopping: () => setState(() => _currentIndex = 0)),
+//       const ProfileScreen(),
 //     ];
 //
 //     return Scaffold(
-//       body: IndexedStack(
-//         index: _currentIndex,
-//         children: screens,
-//       ),
+//       body: IndexedStack(index: _currentIndex, children: screens),
 //       bottomNavigationBar: Container(
 //         decoration: const BoxDecoration(
 //           color: AppColors.surface,
-//           border: Border(top: BorderSide(color: AppColors.borderLight, width: 1)),
+//           border: Border(top: BorderSide(color: AppColors.borderLight)),
 //           boxShadow: [
 //             BoxShadow(
 //               color: AppColors.shadow,
@@ -71,26 +68,15 @@
 //             child: Row(
 //               mainAxisAlignment: MainAxisAlignment.spaceAround,
 //               children: [
-//                 _buildNavItem(
-//                   index: 0,
-//                   icon: Icons.home_outlined,
-//                   activeIcon: Icons.home_rounded,
-//                   label: 'Home',
-//                 ),
-//                 _buildNavItem(
-//                   index: 1,
-//                   icon: Icons.dashboard_outlined,
-//                   activeIcon: Icons.dashboard_rounded,
-//                   label: 'Categories',
-//                 ),
-//                 _buildWishlistNavItem(index: 2),
-//                 _buildCartNavItem(index: 3),
-//                 _buildNavItem(
-//                   index: 4,
-//                   icon: Icons.person_outline_rounded,
-//                   activeIcon: Icons.person_rounded,
-//                   label: 'Profile',
-//                 ),
+//                 _item(0, Icons.home_outlined, Icons.home_rounded, 'Home'),
+//                 _item(1, Icons.dashboard_outlined, Icons.dashboard_rounded,
+//                     'Categories'),
+//                 _item(2, Icons.favorite_border_rounded, Icons.favorite_rounded,
+//                     'Wishlist'),
+//                 _item(3, Icons.shopping_bag_outlined,
+//                     Icons.shopping_bag_rounded, 'Cart'),
+//                 _item(4, Icons.person_outline_rounded, Icons.person_rounded,
+//                     'Profile'),
 //               ],
 //             ),
 //           ),
@@ -99,33 +85,35 @@
 //     );
 //   }
 //
-//   Widget _buildNavItem({
-//     required int index,
-//     required IconData icon,
-//     required IconData activeIcon,
-//     required String label,
-//   }) {
-//     final isSelected = _currentIndex == index;
+//   Widget _item(int index, IconData icon, IconData activeIcon, String label) {
+//     final selected = _currentIndex == index;
+//     final color = selected ? AppColors.primary : AppColors.textTertiary;
 //     return GestureDetector(
-//       onTap: () => switchTab(index),
+//       onTap: () {
+//         setState(() => _currentIndex = index);
+//         // Wishlist tab: silently re-sync (also picks up a fresh login)
+//         if (index == 2) {
+//           context.read<WishlistBloc>().add(const RefreshWishlistEvent());
+//         }
+//         // Cart tab: silently re-sync (also picks up a fresh login)
+//         if (index == 3) {
+//           context.read<CartBloc>().add(const RefreshCartEvent());
+//         }
+//       },
 //       behavior: HitTestBehavior.opaque,
 //       child: Padding(
 //         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
 //         child: Column(
 //           mainAxisSize: MainAxisSize.min,
 //           children: [
-//             Icon(
-//               isSelected ? activeIcon : icon,
-//               size: 24,
-//               color: isSelected ? AppColors.primary : AppColors.textTertiary,
-//             ),
+//             Icon(selected ? activeIcon : icon, size: 24, color: color),
 //             const SizedBox(height: 3),
 //             Text(
 //               label,
-//               style: AppTextStyle.caption.copyWith(
+//               style: TextStyle(
 //                 fontSize: 11,
-//                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-//                 color: isSelected ? AppColors.primary : AppColors.textTertiary,
+//                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+//                 color: color,
 //               ),
 //             ),
 //           ],
@@ -133,127 +121,17 @@
 //       ),
 //     );
 //   }
-//
-//   Widget _buildWishlistNavItem({required int index}) {
-//     final isSelected = _currentIndex == index;
-//     return BlocBuilder<WishlistBloc, WishlistState>(
-//       builder: (context, state) {
-//         final count = state is WishlistLoadedState ? state.count : 0;
-//
-//         return GestureDetector(
-//           onTap: () => switchTab(index),
-//           behavior: HitTestBehavior.opaque,
-//           child: Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-//             child: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 Stack(
-//                   clipBehavior: Clip.none,
-//                   children: [
-//                     Icon(
-//                       isSelected ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-//                       size: 24,
-//                       color: isSelected ? AppColors.primary : AppColors.textTertiary,
-//                     ),
-//                     if (count > 0)
-//                       Positioned(
-//                         top: -4,
-//                         right: -8,
-//                         child: Container(
-//                           padding: const EdgeInsets.all(3),
-//                           decoration: const BoxDecoration(
-//                             color: AppColors.primary,
-//                             shape: BoxShape.circle,
-//                           ),
-//                           constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-//                           child: Text(
-//                             '$count',
-//                             textAlign: TextAlign.center,
-//                             style: AppTextStyle.badgeText.copyWith(fontSize: 9),
-//                           ),
-//                         ),
-//                       ),
-//                   ],
-//                 ),
-//                 const SizedBox(height: 3),
-//                 Text(
-//                   'Wishlist',
-//                   style: AppTextStyle.caption.copyWith(
-//                     fontSize: 11,
-//                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-//                     color: isSelected ? AppColors.primary : AppColors.textTertiary,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-//
-//   Widget _buildCartNavItem({required int index}) {
-//     final isSelected = _currentIndex == index;
-//     return BlocBuilder<CartBloc, CartState>(
-//       builder: (context, state) {
-//         final count = state is CartLoadedState ? state.totalItemCount : 0;
-//
-//         return GestureDetector(
-//           onTap: () => switchTab(index),
-//           behavior: HitTestBehavior.opaque,
-//           child: Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-//             child: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 Stack(
-//                   clipBehavior: Clip.none,
-//                   children: [
-//                     Icon(
-//                       isSelected ? Icons.shopping_bag_rounded : Icons.shopping_bag_outlined,
-//                       size: 24,
-//                       color: isSelected ? AppColors.primary : AppColors.textTertiary,
-//                     ),
-//                     if (count > 0)
-//                       Positioned(
-//                         top: -4,
-//                         right: -8,
-//                         child: Container(
-//                           padding: const EdgeInsets.all(3),
-//                           decoration: const BoxDecoration(
-//                             color: AppColors.primary,
-//                             shape: BoxShape.circle,
-//                           ),
-//                           constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-//                           child: Text(
-//                             '$count',
-//                             textAlign: TextAlign.center,
-//                             style: AppTextStyle.badgeText.copyWith(fontSize: 9),
-//                           ),
-//                         ),
-//                       ),
-//                   ],
-//                 ),
-//                 const SizedBox(height: 3),
-//                 Text(
-//                   'Cart',
-//                   style: AppTextStyle.caption.copyWith(
-//                     fontSize: 11,
-//                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-//                     color: isSelected ? AppColors.primary : AppColors.textTertiary,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
 // }
-//
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/authbloc/auth_bloc.dart';
+import '../bloc/cartbloc/cart_bloc.dart';
+import '../bloc/cartbloc/cart_event.dart';
+import '../bloc/cartbloc/cart_state.dart';
+import '../bloc/whishlistbloc/wishlist_state.dart';
+import '../core/utils/object_factory.dart';
+import '../bloc/whishlistbloc/wishlist_bloc.dart';
+import '../bloc/whishlistbloc/wishlist_event.dart';
 import '../core/theme/app_colors.dart';
 import 'cart_screen.dart';
 import 'categories_screen.dart';
@@ -280,53 +158,55 @@ class _MainBottomNavScreenState extends State<MainBottomNavScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final screens = <Widget>[
-    //   const HomeScreen(),
-    //   const CategoriesScreen(),
-    //   const WishlistScreen(),
-    //   const CartScreen(),
-    //   const ProfileScreen(),
-    // ];
     final screens = <Widget>[
       HomeScreen(
         onNavigateToCategory: () => setState(() => _currentIndex = 1),
       ),
       const CategoriesScreen(),
-      const WishlistScreen(),
-      const CartScreen(),
+      WishlistScreen(onGoShopping: () => setState(() => _currentIndex = 0)),
+      CartScreen(onGoShopping: () => setState(() => _currentIndex = 0)),
       const ProfileScreen(),
     ];
 
-    return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: screens),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          border: Border(top: BorderSide(color: AppColors.borderLight)),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.shadow,
-              blurRadius: 10,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _item(0, Icons.home_outlined, Icons.home_rounded, 'Home'),
-                _item(1, Icons.dashboard_outlined, Icons.dashboard_rounded,
-                    'Categories'),
-                _item(2, Icons.favorite_border_rounded, Icons.favorite_rounded,
-                    'Wishlist'),
-                _item(3, Icons.shopping_bag_outlined,
-                    Icons.shopping_bag_rounded, 'Cart'),
-                _item(4, Icons.person_outline_rounded, Icons.person_rounded,
-                    'Profile'),
-              ],
+    return BlocListener<AuthBloc, AuthState>(
+      // login from ANY place (Profile tab, product page, onboarding):
+      // reload cart + wishlist so no tab keeps the old guest / error view
+      listenWhen: (prev, cur) => cur is AuthenticatedState,
+      listener: (context, state) {
+        context.read<CartBloc>().add(const LoadCartEvent());
+        context.read<WishlistBloc>().add(const LoadWishlistEvent());
+      },
+      child: Scaffold(
+        body: IndexedStack(index: _currentIndex, children: screens),
+        bottomNavigationBar: Container(
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            border: Border(top: BorderSide(color: AppColors.borderLight)),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.shadow,
+                blurRadius: 10,
+                offset: Offset(0, -2),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _item(0, Icons.home_outlined, Icons.home_rounded, 'Home'),
+                  _item(1, Icons.dashboard_outlined, Icons.dashboard_rounded,
+                      'Categories'),
+                  _item(2, Icons.favorite_border_rounded, Icons.favorite_rounded,
+                      'Wishlist'),
+                  _item(3, Icons.shopping_bag_outlined,
+                      Icons.shopping_bag_rounded, 'Cart'),
+                  _item(4, Icons.person_outline_rounded, Icons.person_rounded,
+                      'Profile'),
+                ],
+              ),
             ),
           ),
         ),
@@ -334,11 +214,42 @@ class _MainBottomNavScreenState extends State<MainBottomNavScreen> {
     );
   }
 
+  bool get _loggedIn => ObjectFactory().prefs.isLoggedIn() ?? false;
+
+  /// Tab switch: always show the right thing for the current session.
+  /// logged out -> clear old data (guest view); logged in + list on screen ->
+  /// silent refresh; logged in + nothing loaded yet -> full load with loader.
+  void _syncCart() {
+    final bloc = context.read<CartBloc>();
+    if (!_loggedIn) {
+      bloc.add(const ResetCartEvent());
+    } else if (bloc.state is CartLoadedState) {
+      bloc.add(const RefreshCartEvent());
+    } else {
+      bloc.add(const LoadCartEvent());
+    }
+  }
+
+  void _syncWishlist() {
+    final bloc = context.read<WishlistBloc>();
+    if (!_loggedIn) {
+      bloc.add(const ResetWishlistEvent());
+    } else if (bloc.state is WishlistLoadedState) {
+      bloc.add(const RefreshWishlistEvent());
+    } else {
+      bloc.add(const LoadWishlistEvent());
+    }
+  }
+
   Widget _item(int index, IconData icon, IconData activeIcon, String label) {
     final selected = _currentIndex == index;
     final color = selected ? AppColors.primary : AppColors.textTertiary;
     return GestureDetector(
-      onTap: () => setState(() => _currentIndex = index),
+      onTap: () {
+        setState(() => _currentIndex = index);
+        if (index == 2) _syncWishlist();
+        if (index == 3) _syncCart();
+      },
       behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),

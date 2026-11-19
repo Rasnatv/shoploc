@@ -6,7 +6,7 @@ import '../bloc/productlistbloc/productlist_event.dart';
 import '../bloc/productlistbloc/productlist_state.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_style.dart';
-import '../data/models/models/homemodel.dart';
+import '../data/models/homemodel.dart';
 
 /// Shared paginated grid used by the New Arrivals / Trending / Best Sellers
 /// screens. Needs a [ProductListBloc] above it in the widget tree.

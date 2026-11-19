@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import '../core/error/api_error handler.dart';
 import '../core/utils/object_factory.dart';
-import '../data/models/models/productdetailmodel.dart';
+import '../data/models/productdetailmodel.dart';
 import '../data/models/statemodel.dart';
 
 class ProductDetailsProvider {

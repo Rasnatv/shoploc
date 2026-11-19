@@ -1,5 +1,5 @@
 
-import '../../data/models/models/productdetailmodel.dart';
+import '../../data/models/productdetailmodel.dart';
 
 abstract class ProductDetailsState {
   const ProductDetailsState();
