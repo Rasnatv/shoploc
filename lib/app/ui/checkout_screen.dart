@@ -18,6 +18,7 @@ import '../widgets/appsnackbar.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/empty_state_view.dart';
 import '../widgets/network_image_with_fallback.dart';
+import '../widgets/responsive.dart';
 import 'add_edit_address_screen.dart';
 
 class CheckoutScreen extends StatelessWidget {
@@ -64,6 +65,49 @@ class _CheckoutViewState extends State<_CheckoutView> {
   String _payment = _cod;
 
   bool get _loggedIn => ObjectFactory().prefs.isLoggedIn() ?? false;
+
+  // ---------------- RESPONSIVE HELPERS ----------------
+
+  /// Scale factor for phone widths only (320-480). Responsive.w() keeps
+  /// growing on tablets, which would make paddings/images oversized there.
+  double get _scale =>
+      (Responsive.screenWidth.clamp(320.0, 480.0)).toDouble() / 390.0;
+
+  double _w(double designValue) => designValue * _scale;
+
+  /// Max width of the content column on big screens.
+  double get _maxContentWidth => Responsive.value(
+    mobile: double.infinity,
+    tablet: 640.0,
+    desktop: 720.0,
+  );
+
+  double get _pagePadding => Responsive.value(
+    mobile: _w(16),
+    tablet: 24.0,
+    desktop: 24.0,
+  );
+
+  double get _itemImageWidth => Responsive.value(
+    mobile: _w(50),
+    tablet: 60.0,
+    desktop: 64.0,
+  );
+
+  double get _placeOrderWidth => Responsive.value(
+    mobile: _w(170),
+    tablet: 220.0,
+    desktop: 240.0,
+  );
+
+  /// Centers [child] and caps its width on tablet/desktop.
+  Widget _centered(Widget child) => Align(
+    alignment: Alignment.topCenter,
+    child: ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: _maxContentWidth),
+      child: child,
+    ),
+  );
 
   @override
   void initState() {
@@ -167,6 +211,18 @@ class _CheckoutViewState extends State<_CheckoutView> {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
+      // Keeps the sheet from stretching edge-to-edge on tablets/desktop,
+      // and from growing past the top of the screen on short screens.
+      isScrollControlled: true,
+      useSafeArea: true,
+      constraints: BoxConstraints(
+        maxWidth: Responsive.value(
+          mobile: double.infinity,
+          tablet: 560.0,
+          desktop: 560.0,
+        ),
+        maxHeight: Responsive.screenHeight * 0.85,
+      ),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -195,9 +251,9 @@ class _CheckoutViewState extends State<_CheckoutView> {
             },
             builder: (ctx, state) {
               if (state is! AddressLoadedState) {
-                return const SizedBox(
-                  height: 120,
-                  child: Center(child: CircularProgressIndicator()),
+                return SizedBox(
+                  height: _w(120),
+                  child: const Center(child: CircularProgressIndicator()),
                 );
               }
               final addresses = state.addresses;
@@ -205,21 +261,25 @@ class _CheckoutViewState extends State<_CheckoutView> {
 
               return SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: EdgeInsets.symmetric(vertical: _w(16)),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 6),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: _w(20), vertical: _w(6)),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Select Delivery Address',
-                                style: AppTextStyle.labelLarge.copyWith(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700)),
+                            Flexible(
+                              child: Text('Select Delivery Address',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyle.labelLarge.copyWith(
+                                      fontSize: Responsive.sp(16),
+                                      fontWeight: FontWeight.w700)),
+                            ),
                             TextButton.icon(
                               icon: const Icon(Icons.add, size: 16),
                               label: const Text('Add New'),
@@ -317,6 +377,9 @@ class _CheckoutViewState extends State<_CheckoutView> {
   // ---------------- BUILD ----------------
   @override
   Widget build(BuildContext context) {
+    // Refresh screen metrics (re-runs on rotation / window resize).
+    Responsive.init(context);
+
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(title: Text('Checkout', style: AppTextStyle.appBarTitle)),
@@ -330,10 +393,10 @@ class _CheckoutViewState extends State<_CheckoutView> {
             AppSnackbar.error((state as CheckoutLoadedState).message!.text),
         builder: (context, state) {
           if (state is CheckoutLoadedState) {
-            return state.isEmpty ? _emptyCart() : _content(state);
+            return state.isEmpty ? _centered(_emptyCart()) : _content(state);
           }
           if (state is CheckoutErrorState) {
-            return _errorView(state.errorMessage);
+            return _centered(_errorView(state.errorMessage));
           }
           return const Center(child: CircularProgressIndicator());
         },
@@ -370,35 +433,39 @@ class _CheckoutViewState extends State<_CheckoutView> {
   }
 
   Widget _content(CheckoutLoadedState state) {
+    final gap = _w(24);
+
     return Column(
       children: [
         Expanded(
-          child: RefreshIndicator(
-            onRefresh: _onRefresh,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionTitle('1. Delivery Address'),
-                  const SizedBox(height: 8),
-                  _addressSection(),
-                  const SizedBox(height: 24),
-                  _sectionTitle(
-                      '2. Items in Order (${state.preview.items.length})'),
-                  const SizedBox(height: 8),
-                  _itemsPreview(state.preview),
-                  const SizedBox(height: 24),
-                  _sectionTitle('3. Payment Method'),
-                  const SizedBox(height: 8),
-                  _paymentSection(),
-                  const SizedBox(height: 24),
-                  _sectionTitle('4. Price Details'),
-                  const SizedBox(height: 8),
-                  _priceDetails(state.summary),
-                  const SizedBox(height: 32),
-                ],
+          child: _centered(
+            RefreshIndicator(
+              onRefresh: _onRefresh,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.all(_pagePadding),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionTitle('1. Delivery Address'),
+                    SizedBox(height: _w(8)),
+                    _addressSection(),
+                    SizedBox(height: gap),
+                    _sectionTitle(
+                        '2. Items in Order (${state.preview.items.length})'),
+                    SizedBox(height: _w(8)),
+                    _itemsPreview(state.preview),
+                    SizedBox(height: gap),
+                    _sectionTitle('3. Payment Method'),
+                    SizedBox(height: _w(8)),
+                    _paymentSection(),
+                    SizedBox(height: gap),
+                    _sectionTitle('4. Price Details'),
+                    SizedBox(height: _w(8)),
+                    _priceDetails(state.summary),
+                    SizedBox(height: _w(32)),
+                  ],
+                ),
               ),
             ),
           ),
@@ -411,7 +478,7 @@ class _CheckoutViewState extends State<_CheckoutView> {
   Widget _sectionTitle(String t) => Text(
     t,
     style: AppTextStyle.labelLarge
-        .copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+        .copyWith(fontSize: Responsive.sp(15), fontWeight: FontWeight.w700),
   );
 
   BoxDecoration _cardDecoration() => BoxDecoration(
@@ -435,12 +502,12 @@ class _CheckoutViewState extends State<_CheckoutView> {
 
         if (state is AddressErrorState) {
           return Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(_w(16)),
             decoration: _cardDecoration(),
             child: Row(
               children: [
                 const Icon(Icons.error_outline_rounded, color: AppColors.error),
-                const SizedBox(width: 12),
+                SizedBox(width: _w(12)),
                 Expanded(
                     child: Text(state.errorMessage,
                         style: AppTextStyle.bodySmall)),
@@ -456,7 +523,7 @@ class _CheckoutViewState extends State<_CheckoutView> {
         }
 
         return Container(
-          height: 80,
+          height: _w(80),
           decoration: _cardDecoration(),
           child: const Center(
             child: SizedBox(
@@ -472,13 +539,13 @@ class _CheckoutViewState extends State<_CheckoutView> {
 
   Widget _noAddressCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(_w(16)),
       decoration: _cardDecoration(),
       child: Row(
         children: [
           const Icon(Icons.location_off_outlined,
               color: AppColors.textTertiary),
-          const SizedBox(width: 12),
+          SizedBox(width: _w(12)),
           Expanded(
             child: Text('No address found. Please add a delivery address.',
                 style: AppTextStyle.bodySmall),
@@ -491,7 +558,7 @@ class _CheckoutViewState extends State<_CheckoutView> {
 
   Widget _selectedAddressCard(AddressModel a) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(_w(14)),
       decoration: _cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -503,22 +570,22 @@ class _CheckoutViewState extends State<_CheckoutView> {
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: _w(8), vertical: _w(3)),
                       decoration: BoxDecoration(
                         color: AppColors.primaryMuted,
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Text(
+                      child: Text(
                         'DELIVER TO',
                         style: TextStyle(
                           color: AppColors.primary,
-                          fontSize: 10,
+                          fontSize: Responsive.sp(10),
                           fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: _w(8)),
                     Expanded(
                       child: Text(a.fullName,
                           maxLines: 1,
@@ -537,9 +604,9 @@ class _CheckoutViewState extends State<_CheckoutView> {
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: _w(6)),
           Text(a.formattedAddress, style: AppTextStyle.bodySmall),
-          const SizedBox(height: 4),
+          SizedBox(height: _w(4)),
           Text('Mobile: ${a.phone}',
               style: AppTextStyle.caption
                   .copyWith(color: AppColors.textSecondary)),
@@ -550,6 +617,8 @@ class _CheckoutViewState extends State<_CheckoutView> {
 
   // ---------------- 2. ITEMS ----------------
   Widget _itemsPreview(OrderPreviewResponse preview) {
+    final imgW = _itemImageWidth;
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -564,21 +633,21 @@ class _CheckoutViewState extends State<_CheckoutView> {
         itemBuilder: (context, i) {
           final item = preview.items[i];
           return Padding(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(_w(10)),
             child: Row(
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(6),
                   child: SizedBox(
-                    width: 50,
-                    height: 60,
+                    width: imgW,
+                    height: imgW * 1.2, // keeps the original 50:60 ratio
                     child: NetworkImageWithFallback(
                       imageUrl: item.image,
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: _w(12)),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -590,7 +659,7 @@ class _CheckoutViewState extends State<_CheckoutView> {
                         style: AppTextStyle.bodySmall
                             .copyWith(fontWeight: FontWeight.w600),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: _w(2)),
                       Text(
                         [
                           if (item.size.isNotEmpty) 'Size: ${item.size}',
@@ -601,7 +670,7 @@ class _CheckoutViewState extends State<_CheckoutView> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: _w(8)),
                 Text(_money(item.itemTotal), style: AppTextStyle.labelMedium),
               ],
             ),
@@ -614,7 +683,7 @@ class _CheckoutViewState extends State<_CheckoutView> {
   // ---------------- 3. PAYMENT ----------------
   Widget _paymentSection() {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(_w(12)),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
@@ -651,7 +720,7 @@ class _CheckoutViewState extends State<_CheckoutView> {
       onTap: () => setState(() => _payment = value),
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: EdgeInsets.symmetric(vertical: _w(6)),
         child: Row(
           children: [
             Icon(
@@ -659,9 +728,9 @@ class _CheckoutViewState extends State<_CheckoutView> {
               color: isSelected ? AppColors.primary : AppColors.textTertiary,
               size: 20,
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: _w(10)),
             Icon(icon, color: AppColors.primary, size: 22),
-            const SizedBox(width: 12),
+            SizedBox(width: _w(12)),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -684,7 +753,7 @@ class _CheckoutViewState extends State<_CheckoutView> {
         : (s.deliveryAmount != null ? _money(s.deliveryAmount!) : s.delivery);
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(_w(14)),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
@@ -712,7 +781,7 @@ class _CheckoutViewState extends State<_CheckoutView> {
 
   Widget _row(String label, String value, {Color? color}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: _w(4)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -732,9 +801,12 @@ class _CheckoutViewState extends State<_CheckoutView> {
   }
 
   // ---------------- BOTTOM BAR ----------------
+  /// Background spans the full width; the content inside is capped so it
+  /// lines up with the page content on tablet/desktop.
   Widget _bottomBar(CheckoutSummaryResponse s) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(
+          horizontal: _pagePadding, vertical: _w(12)),
       decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(top: BorderSide(color: AppColors.borderLight)),
@@ -746,25 +818,44 @@ class _CheckoutViewState extends State<_CheckoutView> {
         ],
       ),
       child: SafeArea(
-        child: Row(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+        top: false,
+        child: Align(
+          alignment: Alignment.center,
+          heightFactor: 1,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              // page padding is already applied to the outer container
+              maxWidth: _maxContentWidth.isFinite
+                  ? _maxContentWidth - _pagePadding * 2
+                  : double.infinity,
+            ),
+            child: Row(
               children: [
-                Text('Total Payable', style: AppTextStyle.caption),
-                Text(_money(s.totalAmount),
-                    style: AppTextStyle.productPriceLarge),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Total Payable', style: AppTextStyle.caption),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(_money(s.totalAmount),
+                            style: AppTextStyle.productPriceLarge),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: _w(12)),
+                CustomButton(
+                  text: 'Place Order',
+                  width: _placeOrderWidth,
+                  icon: Icons.lock_outline_rounded,
+                  onPressed: _placeOrder,
+                ),
               ],
             ),
-            const Spacer(),
-            CustomButton(
-              text: 'Place Order',
-              width: 170,
-              icon: Icons.lock_outline_rounded,
-              onPressed: _placeOrder,
-            ),
-          ],
+          ),
         ),
       ),
     );
