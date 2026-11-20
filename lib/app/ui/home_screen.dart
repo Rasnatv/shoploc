@@ -8,6 +8,7 @@ import 'package:shoploc/app/ui/trendingscreen.dart';
 import '../bloc/homebloc/home_bloc.dart';
 import '../bloc/homebloc/home_event.dart';
 import '../bloc/homebloc/home_state.dart';
+import '../core/utils/object_factory.dart';
 import '../bloc/recentview/recentview_bloc.dart';
 import '../bloc/recentview/recentview_event.dart';
 import '../bloc/recentview/recentview_state.dart';
@@ -282,7 +283,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         BlocBuilder<RecentViewBloc, RecentViewState>(
                           bloc: _recentBloc,
                           builder: (context, rs) {
-                            if (rs is! RecentViewLoadedState ||
+                            // Only for logged-in users (auth token)
+                            if (!ObjectFactory().prefs.hasAuthToken ||
+                                rs is! RecentViewLoadedState ||
                                 rs.products.isEmpty) {
                               return const SizedBox.shrink();
                             }

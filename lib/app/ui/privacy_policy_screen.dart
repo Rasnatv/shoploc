@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bloc/privacypolicy/privacypolicy_bloc.dart';
@@ -63,7 +64,11 @@ class _View extends StatelessWidget {
       backgroundColor: const Color(0xFFFBFBFD),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 1,
         elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        titleSpacing: 16,
         title: Text('Privacy Policy', style: AppTextStyle.appBarTitle),
       ),
       body: SafeArea(

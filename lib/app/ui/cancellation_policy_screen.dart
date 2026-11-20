@@ -114,8 +114,12 @@ class _CancellationViewState extends State<_CancellationView> {
     return Scaffold(
       backgroundColor: const Color(0xFFFBFBFD),
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 1,
         elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        titleSpacing: 16,
         title: Text('Cancellation Policy', style: AppTextStyle.appBarTitle),
       ),
       body: SafeArea(

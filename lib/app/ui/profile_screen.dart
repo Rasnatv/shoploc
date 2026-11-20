@@ -72,6 +72,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
     AppSnackbar.success('Logged out successfully');
   }
 
+  void _confirmSignOut() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        icon: Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            color: AppColors.error.withAlpha(25),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.logout_rounded,
+              color: AppColors.error, size: 24),
+        ),
+        title: const Text('Sign out?'),
+        content: const Text(
+          'You will need to sign in again to see your orders and wishlist.',
+          textAlign: TextAlign.center,
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
+                    side: const BorderSide(color: AppColors.borderLight),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Cancel'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.error,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    _logout();
+                  },
+                  child: const Text('Sign out',
+                      style: TextStyle(fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Responsive.init(context);
@@ -87,173 +151,99 @@ class _ProfileScreenState extends State<ProfileScreen> {
         surfaceTintColor: Colors.transparent,
         scrolledUnderElevation: 1,
         elevation: 0,
+        centerTitle: false,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         title: Text('Account', style: AppTextStyle.appBarTitle),
       ),
       body: ResponsiveCenter(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(
-            horizontal: Responsive.sp(16),
-            vertical: Responsive.sp(12),
+          padding: EdgeInsets.fromLTRB(
+            Responsive.sp(16),
+            Responsive.sp(16),
+            Responsive.sp(16),
+            Responsive.sp(24),
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // User Header Card
-              Container(
-                padding: EdgeInsets.all(Responsive.sp(16)),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderLight),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: AppColors.shadow,
-                      blurRadius: 8,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: Responsive.sp(30),
-                      backgroundColor: AppColors.primaryMuted,
-                      child: Text(
-                        name.isNotEmpty ? name[0].toUpperCase() : 'G',
-                        style: AppTextStyle.mainHeading.copyWith(
-                          color: AppColors.primary,
-                          fontSize: Responsive.sp(24),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: Responsive.sp(14)),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            isLoggedIn
-                                ? (name.isNotEmpty ? name : 'User')
-                                : 'Welcome to Shoploc',
-                            style: AppTextStyle.labelLarge
-                                .copyWith(fontSize: Responsive.sp(15)),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          SizedBox(height: Responsive.sp(2)),
-                          Text(
-                            isLoggedIn
-                                ? email
-                                : 'Sign in for personal boutique recommendations',
-                            style: AppTextStyle.caption,
-                            maxLines: isLoggedIn ? 1 : 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Edit icon removed. Sign In button only when logged out.
-                    if (!isLoggedIn) ...[
-                      SizedBox(width: Responsive.sp(10)),
-                      CustomButton(
-                        text: 'Sign In',
-                        width: Responsive.sp(80),
-                        height: Responsive.sp(36),
-                        onPressed: _openAuth,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+              _buildHeader(isLoggedIn: isLoggedIn, name: name, email: email),
 
-              SizedBox(height: Responsive.sp(20)),
+              SizedBox(height: Responsive.sp(24)),
 
-              // Quick Orders & Addresses Menu
+              _buildSectionTitle('Shopping'),
               _buildMenuCard(
                 children: [
                   _buildTile(
                     icon: Icons.receipt_long_outlined,
-                    title: 'My Orders',
-                    subtitle: 'Track, view, and reorder past purchases',
+                    title: 'My orders',
+                    subtitle: 'Track, view and reorder past purchases',
                     onTap: () {},
                     // widget.onNavigateToOrders ??
                     //         () => _push(const OrdersScreen()),
                   ),
-                  const Divider(height: 1),
                   _buildTile(
                     icon: Icons.location_on_outlined,
-                    title: 'Delivery Addresses',
-                    subtitle: 'Manage shipping locations',
-                    onTap: ()
-                    => _push(const AddressListScreen()),
+                    title: 'Delivery addresses',
+                    subtitle: 'Manage your shipping locations',
+                    onTap: () => _push(const AddressListScreen()),
                   ),
-                  const Divider(height: 1),
                   _buildTile(
                     icon: Icons.favorite_border_rounded,
-                    title: 'My Wishlist',
-                    subtitle: 'View your saved favorite pieces',
-                    onTap: ()=>_push(WishlistScreen())
+                    title: 'My wishlist',
+                    subtitle: 'Pieces you have saved',
+                    onTap: () => _push(WishlistScreen()),
                     // onTap: widget.onNavigateToWishlist ?? () {},
                   ),
-                  const Divider(height: 1),
                   _buildTile(
                     icon: Icons.notifications_none_rounded,
                     title: 'Notifications',
-                    subtitle: 'Order updates and promotional offers',
-                    onTap: () {}
+                    subtitle: 'Order updates and offers',
+                    onTap: () {},
                   ),
                 ],
               ),
 
-              SizedBox(height: Responsive.sp(16)),
+              SizedBox(height: Responsive.sp(24)),
 
-              // Information & Support
+              _buildSectionTitle('Help and policies'),
               _buildMenuCard(
                 children: [
                   _buildTile(
                     icon: Icons.help_outline_rounded,
                     title: 'Questions',
-                    subtitle:
-                    'Find quick answers about orders, shipping & payments',
+                    subtitle: 'Answers on orders, shipping and payments',
                     onTap: () => _push(const QuestionsScreen()),
                   ),
-                  const Divider(height: 1),
                   _buildTile(
                     icon: Icons.support_agent_outlined,
-                    title: 'Help & Customer Support',
-                    subtitle: 'Enquiry desk, location, phone & message',
+                    title: 'Help and customer support',
+                    subtitle: 'Enquiry desk, location, phone and message',
                     onTap: () => _push(const EnquiryScreen()),
                   ),
-                  const Divider(height: 1),
                   _buildTile(
                     icon: Icons.currency_rupee_rounded,
-                    title: 'Refund Policy',
-                    subtitle: 'Guidelines on returns, damage & reversals',
+                    title: 'Refund policy',
+                    subtitle: 'Returns, damage and reversals',
                     onTap: () => _push(const RefundPolicyScreen()),
                   ),
-                  const Divider(height: 1),
                   _buildTile(
                     icon: Icons.cancel_outlined,
-                    title: 'Cancellation Policy',
-                    subtitle: 'Order cancellation windows & timelines',
+                    title: 'Cancellation policy',
+                    subtitle: 'Cancellation windows and timelines',
                     onTap: () => _push(const CancellationPolicyScreen()),
                   ),
-                  const Divider(height: 1),
                   _buildTile(
                     icon: Icons.policy_outlined,
-                    title: 'Privacy Policy',
-                    subtitle: 'How we respect and protect your data',
+                    title: 'Privacy policy',
+                    subtitle: 'How we protect your data',
                     onTap: () => _push(const PrivacyPolicyScreen()),
                   ),
-                  const Divider(height: 1),
                   _buildTile(
                     icon: Icons.description_outlined,
-                    title: 'Terms & Conditions',
+                    title: 'Terms and conditions',
                     subtitle: 'Shopping and usage agreements',
-                    onTap: () => _push(const TermsConditionsScreen(
-                    )),
+                    onTap: () => _push(const TermsConditionsScreen()),
                   ),
-                  const Divider(height: 1),
                   _buildTile(
                     icon: Icons.info_outline_rounded,
                     title: 'About Shoploc',
@@ -263,43 +253,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
 
-              SizedBox(height: Responsive.sp(20)),
-
-              // Logout Button (if logged in)
-              if (isLoggedIn)
-                CustomButton(
-                  text: 'Sign Out',
-                  type: ButtonType.outlined,
-                  backgroundColor: AppColors.primary,
-                  textColor: Colors.white,
-                  icon: Icons.logout_rounded,
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text('Sign Out'),
-                        content: const Text(
-                            'Are you sure you want to sign out of Shoploc?'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(ctx),
-                            child: const Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(ctx);
-                              _logout();
-                            },
-                            child: const Text('Sign Out',
-                                style: TextStyle(color: Colors.black)),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+              if (isLoggedIn) ...[
+                SizedBox(height: Responsive.sp(24)),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                      backgroundColor: AppColors.surface,
+                      side: BorderSide(color: AppColors.error.withAlpha(90)),
+                      padding:
+                      EdgeInsets.symmetric(vertical: Responsive.sp(14)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                    ),
+                    onPressed: _loggingOut ? null : _confirmSignOut,
+                    icon: _loggingOut
+                        ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                        : const Icon(Icons.logout_rounded, size: 20),
+                    label: const Text('Sign out',
+                        style: TextStyle(fontWeight: FontWeight.w700)),
+                  ),
                 ),
-
-              SizedBox(height: Responsive.sp(18)),
+              ],
             ],
           ),
         ),
@@ -311,21 +291,130 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
   }
 
+  Widget _buildHeader({
+    required bool isLoggedIn,
+    required String name,
+    required String email,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(Responsive.sp(18)),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.borderLight),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              // ring around the avatar
+              Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                      color: AppColors.primary.withAlpha(70), width: 1.5),
+                ),
+                child: CircleAvatar(
+                  radius: Responsive.sp(30),
+                  backgroundColor: AppColors.primaryMuted,
+                  child: isLoggedIn
+                      ? Text(
+                    name.isNotEmpty ? name[0].toUpperCase() : 'U',
+                    style: AppTextStyle.mainHeading.copyWith(
+                      color: AppColors.primary,
+                      fontSize: Responsive.sp(24),
+                    ),
+                  )
+                      : Icon(Icons.person_outline_rounded,
+                      color: AppColors.primary, size: Responsive.sp(30)),
+                ),
+              ),
+              SizedBox(width: Responsive.sp(14)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isLoggedIn
+                          ? (name.isNotEmpty ? name : 'User')
+                          : 'Welcome to Shoploc',
+                      style: AppTextStyle.labelLarge
+                          .copyWith(fontSize: Responsive.sp(17)),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: Responsive.sp(3)),
+                    Text(
+                      isLoggedIn
+                          ? email
+                          : 'Sign in to get recommendations from local boutiques',
+                      style: AppTextStyle.caption
+                          .copyWith(color: AppColors.textSecondary),
+                      maxLines: isLoggedIn ? 1 : 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (!isLoggedIn) ...[
+            SizedBox(height: Responsive.sp(16)),
+            CustomButton(
+              text: 'Sign in',
+              height: Responsive.sp(44),
+              onPressed: _openAuth,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String text) {
+    return Padding(
+      padding: EdgeInsets.only(
+          left: Responsive.sp(4), bottom: Responsive.sp(10)),
+      child: Text(
+        text,
+        style: AppTextStyle.labelLarge.copyWith(
+          fontSize: Responsive.sp(14),
+          color: AppColors.textSecondary,
+        ),
+      ),
+    );
+  }
+
+  /// Rounded card that clips tile ripples and puts an inset divider between
+  /// tiles (the divider lines up with the text, not the icon).
   Widget _buildMenuCard({required List<Widget> children}) {
+    final spaced = <Widget>[];
+    for (var i = 0; i < children.length; i++) {
+      spaced.add(children[i]);
+      if (i != children.length - 1) {
+        spaced.add(Divider(
+          height: 1,
+          thickness: 1,
+          indent: Responsive.sp(14 + 40 + 12),
+          color: AppColors.borderLight,
+        ));
+      }
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.borderLight),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
-        ],
       ),
-      child: Column(children: children),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: Column(children: spaced),
+      ),
     );
   }
 
@@ -335,24 +424,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return ListTile(
-      contentPadding: EdgeInsets.symmetric(
-        horizontal: Responsive.sp(14),
-        vertical: Responsive.sp(2),
-      ),
-      leading: Container(
-        padding: EdgeInsets.all(Responsive.sp(8)),
-        decoration: const BoxDecoration(
-          color: AppColors.surfaceVariant,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, color: AppColors.primary, size: Responsive.sp(20)),
-      ),
-      title: Text(title, style: AppTextStyle.labelMedium),
-      subtitle: Text(subtitle, style: AppTextStyle.caption),
-      trailing: Icon(Icons.chevron_right,
-          size: Responsive.sp(18), color: AppColors.textTertiary),
+    return InkWell(
       onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: Responsive.sp(14),
+          vertical: Responsive.sp(12),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.primaryMuted,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon,
+                  color: AppColors.primary, size: Responsive.sp(20)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTextStyle.labelMedium),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: AppTextStyle.caption,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded,
+                size: Responsive.sp(22), color: AppColors.textTertiary),
+          ],
+        ),
+      ),
     );
   }
 }

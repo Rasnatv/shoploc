@@ -1,8 +1,52 @@
+// import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:shoploc/app/bloc/productdetailbloc/productdetail_event.dart';
+// import 'package:shoploc/app/bloc/productdetailbloc/productdetail_state.dart';
+// import '../../apiprovider/productdetailprovider.dart';
+// import '../../apiprovider/recentviewprovider.dart';
+// import '../../data/models/productdetailmodel.dart';
+// import '../../data/models/statemodel.dart';
+//
+// class ProductDetailsBloc
+//     extends Bloc<ProductDetailsEvent, ProductDetailsState> {
+//   final ProductDetailsProvider _provider;
+//   final RecentViewProvider _recentProvider = RecentViewProvider();
+//
+//   ProductDetailsBloc({ProductDetailsProvider? provider})
+//       : _provider = provider ?? ProductDetailsProvider(),
+//         super(const ProductDetailsInitialState()) {
+//     on<LoadProductDetailsEvent>(_onLoad);
+//   }
+//
+//   Future<void> _onLoad(LoadProductDetailsEvent event,
+//       Emitter<ProductDetailsState> emit) async {
+//     emit(const ProductDetailsLoadingState());
+//     try {
+//       final res =
+//       await _provider.productDetailsProvider(productId: event.productId);
+//       final data = res.payload<ProductDetailsResponse>();
+//       final product = data?.product;
+//       if (product == null) {
+//         emit(ProductDetailsErrorState(
+//             errorMessage: res.errorText() ?? 'Failed to load product.'));
+//         return;
+//       }
+//       emit(ProductDetailsLoadedState(product: product));
+//
+//       // Save to "Recently Viewed" (fire-and-forget; errors are ignored,
+//       // e.g. when the user is not logged in).
+//       _recentProvider.saveRecentViewProvider(productId: event.productId);
+//     } catch (_) {
+//       emit(const ProductDetailsErrorState(
+//           errorMessage: 'Something went wrong. Please try again.'));
+//     }
+//   }
+// }
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shoploc/app/bloc/productdetailbloc/productdetail_event.dart';
 import 'package:shoploc/app/bloc/productdetailbloc/productdetail_state.dart';
 import '../../apiprovider/productdetailprovider.dart';
 import '../../apiprovider/recentviewprovider.dart';
+import '../../core/utils/object_factory.dart';
 import '../../data/models/productdetailmodel.dart';
 import '../../data/models/statemodel.dart';
 
@@ -32,9 +76,11 @@ class ProductDetailsBloc
       }
       emit(ProductDetailsLoadedState(product: product));
 
-      // Save to "Recently Viewed" (fire-and-forget; errors are ignored,
-      // e.g. when the user is not logged in).
-      _recentProvider.saveRecentViewProvider(productId: event.productId);
+      // Save to "Recently Viewed" ONLY for a logged-in user (auth token).
+      // Guests can still view the product; the API is simply not called.
+      if (ObjectFactory().prefs.hasAuthToken) {
+        _recentProvider.saveRecentViewProvider(productId: event.productId);
+      }
     } catch (_) {
       emit(const ProductDetailsErrorState(
           errorMessage: 'Something went wrong. Please try again.'));

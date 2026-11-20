@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/addressbloc/address_bloc.dart';
@@ -382,7 +383,14 @@ class _CheckoutViewState extends State<_CheckoutView> {
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
-      appBar: AppBar(title: Text('Checkout', style: AppTextStyle.appBarTitle)),
+      appBar: AppBar(
+          backgroundColor: AppColors.surface,
+          surfaceTintColor: Colors.transparent,
+          scrolledUnderElevation: 1,
+          elevation: 0,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          titleSpacing: 16,
+          title: Text('Checkout', style: AppTextStyle.appBarTitle)),
       body: BlocConsumer<CheckoutBloc, CheckoutState>(
         listenWhen: (prev, cur) =>
         cur is CheckoutLoadedState &&

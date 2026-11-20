@@ -210,8 +210,12 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         return Scaffold(
           backgroundColor: const Color(0xFFF6F8FC),
           appBar: AppBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: AppColors.surface,
+            surfaceTintColor: Colors.transparent,
+            scrolledUnderElevation: 1,
             elevation: 0,
+            systemOverlayStyle: SystemUiOverlayStyle.dark,
+            titleSpacing: 16,
             title: Text(
               'Enquiry & Support',
               style: AppTextStyle.appBarTitle,

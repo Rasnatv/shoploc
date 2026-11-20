@@ -383,8 +383,12 @@ class _CheckoutAuthScreenState extends State<CheckoutAuthScreen> {
       child: Scaffold(
         backgroundColor: AppColors.scaffoldBackground,
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppColors.surface,
+          surfaceTintColor: Colors.transparent,
+          scrolledUnderElevation: 1,
           elevation: 0,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          titleSpacing: 16,
           automaticallyImplyLeading: false,
           actions: [widget.isFromOnboarding ? _skipButton() : _closeButton()],
         ),

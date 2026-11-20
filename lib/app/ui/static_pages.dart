@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../core/constants/app_constants.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_style.dart';
@@ -24,7 +25,14 @@ class AboutUsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
-      appBar: AppBar(title: Text('About Shoploc', style: AppTextStyle.appBarTitle)),
+      appBar: AppBar(
+          backgroundColor: AppColors.surface,
+          surfaceTintColor: Colors.transparent,
+          scrolledUnderElevation: 1,
+          elevation: 0,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          titleSpacing: 16,
+          title: Text('About Shoploc', style: AppTextStyle.appBarTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shoploc/app/ui/product_details_screen.dart';
 import '../bloc/productlistbloc/productlist_bloc.dart';
@@ -20,6 +21,12 @@ class BestSellersScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.scaffoldBackground,
         appBar: AppBar(
+          backgroundColor: AppColors.surface,
+          surfaceTintColor: Colors.transparent,
+          scrolledUnderElevation: 1,
+          elevation: 0,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          titleSpacing: 16,
           title: Text('Best Seller', style: AppTextStyle.appBarTitle),
         ),
         body: ProductListBody(
