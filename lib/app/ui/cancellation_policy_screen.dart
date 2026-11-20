@@ -1,12 +1,114 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../bloc/cancelationbloc/cancelation_bloc.dart';
+import '../bloc/cancelationbloc/cancelation_event.dart';
+import '../bloc/cancelationbloc/cancelation_state.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_style.dart';
+import '../data/models/cancelationpolicymodel.dart';
+import '../data/models/privacypolicymodel.dart';
+import '../widgets/responsive.dart';
 import 'enquiry_screen.dart';
 
+/// Cancellation policy loaded from GET /cancellation-policy.
 class CancellationPolicyScreen extends StatelessWidget {
   const CancellationPolicyScreen({super.key});
 
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => CancellationBloc()..add(const LoadCancellationPolicyEvent()),
+      child: const _CancellationView(),
+    );
+  }
+}
+
+class _CancellationView extends StatefulWidget {
+  const _CancellationView();
+
+  @override
+  State<_CancellationView> createState() => _CancellationViewState();
+}
+
+class _CancellationViewState extends State<_CancellationView> {
+  static const Color _ink = Color(0xFF111827);
+  static const Color _accent = Color(0xFFDC2626); // cancellation red
+
+  /// One key per section, used by the contents chips to scroll to a card.
+  final Map<int, GlobalKey> _sectionKeys = {};
+
+  GlobalKey _keyFor(int i) => _sectionKeys.putIfAbsent(i, () => GlobalKey());
+
+  // ---------------- text styles ----------------
+  TextStyle _body(double size,
+      {Color color = const Color(0xFF374151),
+        FontWeight weight = FontWeight.normal,
+        double? height,
+        double? letterSpacing,
+        TextDecoration? decoration}) =>
+      GoogleFonts.plusJakartaSans(
+        textStyle: TextStyle(
+          fontFamily: AppTextStyle.bodyFont,
+          fontSize: Responsive.sp(size),
+          fontWeight: weight,
+          color: color,
+          height: height,
+          letterSpacing: letterSpacing,
+          decoration: decoration,
+        ),
+      );
+
+  TextStyle _heading(double size, {FontWeight weight = FontWeight.w700}) =>
+      GoogleFonts.playfairDisplay(
+        textStyle: TextStyle(
+          fontFamily: AppTextStyle.headingFont,
+          fontSize: Responsive.sp(size),
+          fontWeight: weight,
+          color: _ink,
+          letterSpacing: -0.2,
+        ),
+      );
+
+  // ---------------- actions ----------------
+  void _scrollToSection(int index) {
+    final ctx = _keyFor(index).currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _copyToClipboard(String label, String value) {
+    Clipboard.setData(ClipboardData(text: value));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$label copied: $value',
+            style: TextStyle(fontFamily: AppTextStyle.bodyFont)),
+        backgroundColor: AppColors.brandBlue,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _openEnquiry() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const EnquiryScreen()),
+    );
+  }
+
+  Future<void> _refresh() async {
+    final bloc = context.read<CancellationBloc>();
+    bloc.add(const RefreshCancellationPolicyEvent());
+    await bloc.stream.first
+        .timeout(const Duration(seconds: 15), onTimeout: () => bloc.state);
+  }
+
+  // ---------------- build ----------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,238 +116,179 @@ class CancellationPolicyScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          'Cancellation Policy',
-          style: AppTextStyle.appBarTitle,
-        ),
+        title: Text('Cancellation Policy', style: AppTextStyle.appBarTitle),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header Card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x06000000),
-                      blurRadius: 10,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDC2626).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        'ORDER CANCELLATION GUIDELINES',
-                        style: GoogleFonts.plusJakartaSans(
-                          textStyle: TextStyle(
-                            fontFamily: AppTextStyle.bodyFont,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.8,
-                            color: const Color(0xFFDC2626),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Cancellation Policy',
-                      style: GoogleFonts.playfairDisplay(
-                        textStyle: TextStyle(
-                          fontFamily: AppTextStyle.headingFont,
-                          fontSize: 26,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF111827),
-                          letterSpacing: -0.4,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Last updated: November 13, 2026 · Understanding order cancellations, eligibility windows, and refund procedures.',
-                      style: GoogleFonts.plusJakartaSans(
-                        textStyle: TextStyle(
-                          fontFamily: AppTextStyle.bodyFont,
-                          fontSize: 13,
-                          color: const Color(0xFF6B7280),
-                          height: 1.45,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+        child: BlocBuilder<CancellationBloc, CancellationState>(
+          builder: (context, state) {
+            if (state is CancellationLoadedState) {
+              return _loaded(state.policy);
+            }
+            if (state is CancellationErrorState) {
+              return _error(state.errorMessage);
+            }
+            return const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
               ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 
-              const SizedBox(height: 20),
+  Widget _error(String message) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(Responsive.sp(24)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.cloud_off_rounded,
+                size: 44, color: AppColors.textTertiary),
+            SizedBox(height: Responsive.sp(12)),
+            Text('Could not load cancellation policy',
+                style: AppTextStyle.sectionHeading),
+            SizedBox(height: Responsive.sp(6)),
+            Text(message,
+                textAlign: TextAlign.center, style: AppTextStyle.caption),
+            SizedBox(height: Responsive.sp(14)),
+            ElevatedButton(
+              onPressed: () => context
+                  .read<CancellationBloc>()
+                  .add(const LoadCancellationPolicyEvent()),
+              child: const Text('Try Again'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-              // 01 Cancellation Window
-              _buildCard(
-                number: '01',
-                title: 'Customer Cancellation Window',
-                children: [
-                  _buildText(
-                    'You can cancel your order directly through the Shoploc mobile app before the boutique partner accepts, packs, or dispatches your items.',
-                  ),
-                  const SizedBox(height: 10),
-                  _buildHighlight(
-                    'Orders can generally be cancelled within 1–2 hours of placement. Once processing begins, cancellation is locked to ensure timely courier dispatch.',
-                  ),
+  Widget _loaded(CancellationPolicyResponse policy) {
+    final sections = policy.sections;
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: _refresh,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: ResponsiveCenter(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: Responsive.sp(18), vertical: Responsive.sp(12)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _header(policy.title),
+                SizedBox(height: Responsive.sp(18)),
+                if (sections.isNotEmpty) ...[
+                  _contents(sections),
+                  SizedBox(height: Responsive.sp(22)),
                 ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // 02 Post-Dispatch
-              _buildCard(
-                number: '02',
-                title: 'Post-Dispatch Status',
-                children: [
-                  _buildText(
-                    'Once your order has been packed, handed over to our courier partner, and assigned an AWB tracking number, it cannot be cancelled by the customer.',
-                  ),
-                  const SizedBox(height: 10),
-                  _buildText(
-                    'If you no longer require the items, you may politely refuse delivery at your doorstep only if the packaging seal is found visibly damaged or opened.',
-                  ),
+                for (int i = 0; i < sections.length; i++) ...[
+                  _card(index: i, section: sections[i]),
+                  SizedBox(height: Responsive.sp(16)),
                 ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // 03 Cancellation by Shoploc / Seller
-              _buildCard(
-                number: '03',
-                title: 'Cancellation by Shoploc or Seller',
-                children: [
-                  _buildText(
-                    'Under rare circumstances, an order may be cancelled by Shoploc or our partner boutique due to:',
-                  ),
-                  const SizedBox(height: 8),
-                  _buildBullet(
-                      'Unexpected stock depletion or fabric defect discovered during quality check.'),
-                  _buildBullet(
-                      'Logistics disruption or unserviceable delivery pin codes.'),
-                  _buildBullet(
-                      'Incorrect or incomplete delivery address or unreachable phone verification.'),
-                  _buildBullet(
-                      'Suspected fraudulent activity or unauthorized payment flag.'),
-                  const SizedBox(height: 10),
-                  _buildText(
-                    'In any such case, the customer will be notified immediately via SMS/Email and a 100% full refund will be initiated instantly.',
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // 04 Refunds for Cancelled Orders
-              _buildCard(
-                number: '04',
-                title: 'Refund of Cancelled Orders',
-                children: [
-                  _buildText(
-                    'For all orders successfully cancelled within the permissible window:',
-                  ),
-                  const SizedBox(height: 8),
-                  _buildBullet(
-                      '100% of the paid order amount will be credited back to your original payment method.'),
-                  _buildBullet(
-                      'No cancellation penalty or processing fee is charged.'),
-                  _buildBullet(
-                      'Refunds are processed through Razorpay and reflect in your bank account or UPI wallet within 5–7 business days.'),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // 05 How to Request Cancellation
-              _buildCard(
-                number: '05',
-                title: 'How to Request a Cancellation',
-                children: [
-                  _buildText('You can initiate a cancellation in two ways:'),
-                  const SizedBox(height: 10),
-                  _buildStep(1,
-                      'Go to Profile > My Orders > Select Order > Tap "Cancel Order" (if status is Placed / Pending).'),
-                  _buildStep(2,
-                      'Contact our support desk immediately at info@shoploc.in or +91 8848 748 469 with your Order ID.'),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF111827),
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const EnquiryScreen(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.support_agent_rounded, size: 18),
-                      label: Text(
-                        'Contact Support Desk',
-                        style: GoogleFonts.plusJakartaSans(
-                          textStyle: TextStyle(
-                            fontFamily: AppTextStyle.bodyFont,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 28),
-            ],
+                SizedBox(height: Responsive.sp(4)),
+                _contactButton(),
+                SizedBox(height: Responsive.sp(28)),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildCard({
-    required String number,
-    required String title,
-    required List<Widget> children,
-  }) {
+  // ---------------- header ----------------
+  Widget _header(String title) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(Responsive.sp(20)),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE5E7EB)),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x04000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
+              color: Color(0x06000000), blurRadius: 10, offset: Offset(0, 3)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(
+                horizontal: Responsive.sp(10), vertical: Responsive.sp(4)),
+            decoration: BoxDecoration(
+              color: _accent.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              'ORDER CANCELLATION GUIDELINES',
+              style: _body(11,
+                  color: _accent,
+                  weight: FontWeight.w800,
+                  letterSpacing: 0.8),
+            ),
           ),
+          SizedBox(height: Responsive.sp(12)),
+          Text(title, style: _heading(26, weight: FontWeight.w800)),
+          SizedBox(height: Responsive.sp(8)),
+          Text(
+            'Please review how order cancellations work before you place an order.',
+            style: _body(13, color: const Color(0xFF6B7280), height: 1.45),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------- contents chips ----------------
+  Widget _contents(List<PolicySectionModel> sections) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'CONTENTS',
+          style: _body(12,
+              color: const Color(0xFF9CA3AF),
+              weight: FontWeight.w800,
+              letterSpacing: 1.2),
+        ),
+        SizedBox(height: Responsive.sp(8)),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: List.generate(sections.length, (i) {
+            return ActionChip(
+              backgroundColor: Colors.white,
+              side: const BorderSide(color: Color(0xFFE5E7EB)),
+              label: Text(
+                '${i + 1}. ${sections[i].title}',
+                style: _body(12.5, color: _accent, weight: FontWeight.w600),
+              ),
+              onPressed: () => _scrollToSection(i),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  // ---------------- section card ----------------
+  Widget _card({required int index, required PolicySectionModel section}) {
+    final isContact = section.title.toLowerCase().contains('contact');
+    return Container(
+      key: _keyFor(index),
+      padding: EdgeInsets.all(Responsive.sp(20)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x04000000), blurRadius: 8, offset: Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -254,65 +297,102 @@ class CancellationPolicyScreen extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                padding: EdgeInsets.symmetric(
+                    horizontal: Responsive.sp(9), vertical: Responsive.sp(4)),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF111827),
+                  color: _ink,
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Text(
-                  number,
-                  style: GoogleFonts.plusJakartaSans(
-                    textStyle: TextStyle(
-                      fontFamily: AppTextStyle.bodyFont,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                child: Text((index + 1).toString().padLeft(2, '0'),
+                    style: _body(12,
+                        color: Colors.white, weight: FontWeight.w800)),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  title,
-                  style: GoogleFonts.playfairDisplay(
-                    textStyle: TextStyle(
-                      fontFamily: AppTextStyle.headingFont,
-                      fontSize: 18.5,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF111827),
-                    ),
-                  ),
-                ),
-              ),
+              SizedBox(width: Responsive.sp(12)),
+              Expanded(child: Text(section.title, style: _heading(19))),
             ],
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: Responsive.sp(14)),
           const Divider(height: 1, color: Color(0xFFF3F4F6)),
-          const SizedBox(height: 14),
-          ...children,
+          SizedBox(height: Responsive.sp(14)),
+          ..._blocks(section, isContact: isContact),
         ],
       ),
     );
   }
 
-  Widget _buildText(String text) {
-    return Text(
-      text,
-      style: GoogleFonts.plusJakartaSans(
-        textStyle: TextStyle(
-          fontFamily: AppTextStyle.bodyFont,
-          fontSize: 13.5,
-          color: const Color(0xFF374151),
-          height: 1.5,
-        ),
+  /// Turns parsed blocks into widgets.
+  ///  - highlight-box                              -> blue info box
+  ///  - labelled bullets in the contact section    -> tappable contact rows
+  List<Widget> _blocks(PolicySectionModel section, {required bool isContact}) {
+    final out = <Widget>[];
+
+    for (final b in section.blocks) {
+      switch (b.type) {
+        case PolicyBlockType.paragraph:
+          out.add(Padding(
+            padding: EdgeInsets.only(bottom: Responsive.sp(10)),
+            child: Text(b.text, style: _body(13.5, height: 1.5)),
+          ));
+          break;
+
+        case PolicyBlockType.highlight:
+          out.add(Padding(
+            padding: EdgeInsets.only(bottom: Responsive.sp(10)),
+            child: _infoBox(b.text),
+          ));
+          break;
+
+        case PolicyBlockType.bullet:
+          if (isContact && b.label.isNotEmpty) {
+            out.add(_contactRow(b));
+          } else {
+            out.add(_bullet(b));
+          }
+          break;
+      }
+    }
+    return out;
+  }
+
+  // ---------------- block widgets ----------------
+  Widget _bullet(PolicyBlock b) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: Responsive.sp(4)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: Responsive.sp(6)),
+            child: const Icon(Icons.circle, size: 6, color: _accent),
+          ),
+          SizedBox(width: Responsive.sp(10)),
+          Expanded(
+              child: _richText(
+                  b, _body(13.5, color: const Color(0xFF4B5563), height: 1.45))),
+        ],
       ),
     );
   }
 
-  Widget _buildHighlight(String text) {
+  Widget _richText(PolicyBlock b, TextStyle base) {
+    return RichText(
+      text: TextSpan(
+        style: base,
+        children: [
+          if (b.label.isNotEmpty)
+            TextSpan(
+              text: '${b.label} ',
+              style: base.copyWith(color: _ink, fontWeight: FontWeight.w700),
+            ),
+          TextSpan(text: b.text),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoBox(String text) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(Responsive.sp(14)),
       decoration: BoxDecoration(
         color: const Color(0xFFEFF6FF),
         borderRadius: BorderRadius.circular(10),
@@ -321,20 +401,16 @@ class CancellationPolicyScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.info_outline, size: 18, color: AppColors.brandBlue),
-          const SizedBox(width: 10),
+          Icon(Icons.info_outline,
+              size: Responsive.sp(18), color: AppColors.brandBlue),
+          SizedBox(width: Responsive.sp(10)),
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.plusJakartaSans(
-                textStyle: TextStyle(
-                  fontFamily: AppTextStyle.bodyFont,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
+              style: _body(13,
                   color: const Color(0xFF1E3A8A),
-                  height: 1.4,
-                ),
-              ),
+                  weight: FontWeight.w600,
+                  height: 1.4),
             ),
           ),
         ],
@@ -342,80 +418,88 @@ class CancellationPolicyScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBullet(String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 6),
-            child: Icon(Icons.circle, size: 6, color: Color(0xFFDC2626)),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              text,
-              style: GoogleFonts.plusJakartaSans(
-                textStyle: TextStyle(
-                  fontFamily: AppTextStyle.bodyFont,
-                  fontSize: 13.5,
-                  color: const Color(0xFF4B5563),
-                  height: 1.45,
+  // ---------------- contact rows ----------------
+  Widget _contactRow(PolicyBlock b) {
+    final label = b.label.toLowerCase();
+    final isEmail = label.contains('email');
+    final isHours = label.contains('hour');
+    final isPage = label.contains('page') ||
+        label.contains('website') ||
+        label.contains('contact');
+    final isPhone = label.contains('phone') || label.contains('call');
+
+    final IconData icon = isEmail
+        ? Icons.email_outlined
+        : isHours
+        ? Icons.access_time_rounded
+        : isPhone
+        ? Icons.phone_outlined
+        : Icons.language_rounded;
+
+    VoidCallback? onTap;
+    if (isEmail) {
+      onTap = () => _copyToClipboard('Email', b.text);
+    } else if (isPhone) {
+      onTap = () => _copyToClipboard('Phone', b.text);
+    } else if (isPage) {
+      onTap = _openEnquiry;
+    }
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: Responsive.sp(5)),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: Responsive.sp(16), color: _accent),
+            SizedBox(width: Responsive.sp(8)),
+            Expanded(
+              child: RichText(
+                text: TextSpan(
+                  style: _body(13, color: _ink),
+                  children: [
+                    TextSpan(
+                      text: '${b.label} ',
+                      style: _body(13, color: _ink, weight: FontWeight.w700),
+                    ),
+                    TextSpan(
+                      text: b.text,
+                      style: onTap != null
+                          ? _body(13,
+                          color: _accent,
+                          decoration: TextDecoration.underline)
+                          : _body(13, color: const Color(0xFF4B5563)),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildStep(int number, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 22,
-            height: 22,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFD1D5DB)),
+  // ---------------- bottom button ----------------
+  Widget _contactButton() {
+    return SizedBox(
+        width: double.infinity,
+        height: Responsive.sp(48),
+        child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _ink,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            child: Center(
-              child: Text(
-                '$number',
-                style: GoogleFonts.plusJakartaSans(
-                  textStyle: TextStyle(
-                    fontFamily: AppTextStyle.bodyFont,
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF111827),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              text,
-              style: GoogleFonts.plusJakartaSans(
-                textStyle: TextStyle(
-                  fontFamily: AppTextStyle.bodyFont,
-                  fontSize: 13.5,
-                  color: const Color(0xFF374151),
-                  height: 1.45,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+            onPressed: _openEnquiry,
+            icon: Icon(Icons.support_agent_rounded, size: Responsive.sp(18)),
+            label: Text('Contact Support Desk',
+                style: _body(14, color: Colors.white, weight: FontWeight.w700)),
+        )
+  );
 }
-
+}

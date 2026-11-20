@@ -232,4 +232,15 @@ class ApiClient {
   /// POST /enquiry
   Future<Response> sendEnquiry(EnquiryRequest r) =>
       dio.post(ApiConstants.enquiry, data: r.toJson());
+
+
+  /// GET /privacy-policy
+  Future<Response> getPrivacyPolicy() => dio.get(ApiConstants.privacyPolicy);
+  /// GET /refund-policy
+  Future<Response> getRefundPolicy() => dio.get(ApiConstants.refundPolicy);
+  /// GET /terms-and-conditions
+  Future<Response> getTerms() => dio.get(ApiConstants.terms);
+  /// GET /cancellation-policy
+  Future<Response> getCancellationPolicy() =>
+      dio.get(ApiConstants.cancellationPolicy);
 }

@@ -73,5 +73,21 @@ class ApiConstants {
   static const String enquiry = '/enquiry';
 
 
+  // Privacy policy
+  // GET /privacy-policy
+  static const String privacyPolicy = '/privacy-policy';
+  // Refund policy
+  // GET /refund-policy
+  static const String refundPolicy = '/refund-policy';
+
+  // Terms & conditions
+  // GET /terms-and-conditions
+  static const String terms = '/terms-and-conditions';
+  // Cancellation policy
+  // GET /cancellation-policy
+  static const String cancellationPolicy = '/cancellation-policy';
+
+
+
 
 }

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shoploc/app/core/utils/object_factory.dart';
+import 'package:shoploc/app/ui/termsandcondition.dart';
 import 'package:shoploc/app/ui/wishlist_screen.dart';
 import 'package:shoploc/app/widgets/appsnackbar.dart';
 import 'package:shoploc/app/widgets/responsive.dart';
@@ -249,9 +250,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.description_outlined,
                     title: 'Terms & Conditions',
                     subtitle: 'Shopping and usage agreements',
-                    onTap: () => _push(const TermsPrivacyScreen(
-                      title: 'Terms & Conditions',
-                      isPrivacy: false,
+                    onTap: () => _push(const TermsConditionsScreen(
                     )),
                   ),
                   const Divider(height: 1),
