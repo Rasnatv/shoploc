@@ -11,7 +11,8 @@ import '../core/theme/app_text_style.dart';
 import '../data/models/privacypolicymodel.dart';
 import '../data/models/termsmodel.dart';
 import '../widgets/responsive.dart';
-import 'enquiry_screen.dart';
+import 'package:go_router/go_router.dart';
+import '../router/app_router.dart';
 
 /// Terms & Conditions loaded from GET /terms-and-conditions.
 class TermsConditionsScreen extends StatelessWidget {
@@ -96,9 +97,7 @@ class _TermsViewState extends State<_TermsView> {
   }
 
   void _openEnquiry() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const EnquiryScreen()),
-    );
+    context.push(AppRouter.enquiry);
   }
 
   Future<void> _refresh() async {

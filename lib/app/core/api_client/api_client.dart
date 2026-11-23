@@ -243,4 +243,24 @@ class ApiClient {
   /// GET /cancellation-policy
   Future<Response> getCancellationPolicy() =>
       dio.get(ApiConstants.cancellationPolicy);
+
+
+  // ---------------- SEARCH ----------------
+
+  /// POST /products/search   body: { "search": "olive" }
+  Future<Response> searchProducts({required String search}) =>
+      dio.post(ApiConstants.productSearch, data: {'search': search});
+  // ---------------- ORDERS ----------------
+
+  /// GET /orders?page=&per_page=
+  Future<Response> getOrders({int page = 1, int perPage = 10}) =>
+      dio.get(ApiConstants.orders,
+          queryParameters: {'page': page, 'per_page': perPage});
+  // ---------------- PRICE SUMMARY ----------------
+
+  /// POST /product/price-summary   body: { "product_id": 21, "quantity": 2 }
+  Future<Response> getPriceSummary(
+      {required int productId, required int quantity}) =>
+      dio.post(ApiConstants.priceSummary,
+          data: {'product_id': productId, 'quantity': quantity});
 }

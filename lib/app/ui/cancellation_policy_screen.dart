@@ -10,7 +10,8 @@ import '../core/theme/app_text_style.dart';
 import '../data/models/cancelationpolicymodel.dart';
 import '../data/models/privacypolicymodel.dart';
 import '../widgets/responsive.dart';
-import 'enquiry_screen.dart';
+import 'package:go_router/go_router.dart';
+import '../router/app_router.dart';
 
 /// Cancellation policy loaded from GET /cancellation-policy.
 class CancellationPolicyScreen extends StatelessWidget {
@@ -96,9 +97,7 @@ class _CancellationViewState extends State<_CancellationView> {
   }
 
   void _openEnquiry() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const EnquiryScreen()),
-    );
+    context.push(AppRouter.enquiry);
   }
 
   Future<void> _refresh() async {

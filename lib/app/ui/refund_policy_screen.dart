@@ -10,7 +10,8 @@ import '../core/theme/app_text_style.dart';
 import '../data/models/privacypolicymodel.dart';
 import '../data/models/refundpolicymodel.dart';
 import '../widgets/responsive.dart';
-import 'enquiry_screen.dart';
+import 'package:go_router/go_router.dart';
+import '../router/app_router.dart';
 
 /// Refund policy loaded from GET /refund-policy.
 class RefundPolicyScreen extends StatelessWidget {
@@ -95,9 +96,7 @@ class _RefundViewState extends State<_RefundView> {
   }
 
   void _openEnquiry() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const EnquiryScreen()),
-    );
+    context.push(AppRouter.enquiry);
   }
 
   Future<void> _refresh() async {

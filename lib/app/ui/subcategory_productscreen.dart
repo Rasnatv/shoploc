@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shoploc/app/ui/product_details_screen.dart';
 
 import '../bloc/subcategory/subcategory_bloc.dart';
 import '../bloc/subcategory/subcategory_event.dart';
@@ -14,6 +13,8 @@ import '../core/theme/app_text_style.dart';
 import '../data/models/homemodel.dart';
 import '../widgets/product_card.dart';
 import '../widgets/responsive.dart';
+import 'package:go_router/go_router.dart';
+import '../router/app_router.dart';
 
 /// Products under one subcategory (POST /subcategory/products).
 /// Creates its own [SubCategoryProductBloc].
@@ -112,9 +113,7 @@ class _ViewState extends State<_View> {
   }
 
   void _openProduct(int id) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ProductDetailsScreen(productId: id),
-    ));
+    context.push(AppRouter.productPath(id));
   }
 
   @override

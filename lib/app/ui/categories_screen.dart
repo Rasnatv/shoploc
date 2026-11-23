@@ -3,7 +3,6 @@ import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shoploc/app/ui/subcategory_productscreen.dart';
 import '../bloc/categoriesbloc/category_bloc.dart';
 import '../bloc/categoriesbloc/category_event.dart';
 import '../bloc/categoriesbloc/category_state.dart';
@@ -12,6 +11,8 @@ import '../core/theme/app_text_style.dart';
 import '../data/models/homemodel.dart';
 import '../widgets/appsnackbar.dart';
 import '../widgets/responsive.dart';
+import 'package:go_router/go_router.dart';
+import '../router/app_router.dart';
 
 enum CategoryViewLayout { splitRail, visualGrid }
 
@@ -116,12 +117,10 @@ class _CategoriesViewState extends State<_CategoriesView> {
       AppSnackbar.warning('Select a subcategory to see its products');
       return;
     }
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => SubCategoryProductsScreen(
-        subCategory: sub,
-        parentName: category.name,
-      ),
-    ));
+    context.push(AppRouter.subCategoryProducts, extra: {
+      'subCategory': sub,
+      'parentName': category.name,
+    });
   }
 
   // ---- Helpers ----

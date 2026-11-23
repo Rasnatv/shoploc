@@ -87,6 +87,13 @@ class ApiConstants {
   // GET /cancellation-policy
   static const String cancellationPolicy = '/cancellation-policy';
 
+  //search
+  static const String productSearch = '/products/search';
+
+  // Orders
+  // GET /orders?page=1&per_page=10
+  static const String orders = '/orders';
+  static const String priceSummary = '/product/price-summary';
 
 
 

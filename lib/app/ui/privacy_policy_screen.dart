@@ -10,7 +10,8 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_style.dart';
 import '../data/models/privacypolicymodel.dart';
 import '../widgets/responsive.dart';
-import 'enquiry_screen.dart';
+import 'package:go_router/go_router.dart';
+import '../router/app_router.dart';
 
 /// Privacy policy loaded from GET /privacy-policy.
 class PrivacyPolicyScreen extends StatelessWidget {
@@ -332,9 +333,7 @@ class _View extends StatelessWidget {
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const EnquiryScreen()),
-          );
+          context.push(AppRouter.enquiry);
         },
         icon: Icon(Icons.mail_outline_rounded, size: Responsive.sp(18)),
         label: Text('Contact Us',

@@ -15,8 +15,7 @@ import '../widgets/appsnackbar.dart';
 import '../widgets/empty_state_view.dart';
 import '../widgets/network_image_with_fallback.dart';
 import '../widgets/responsive.dart';
-import 'checkout_screen.dart';
-import 'product_details_screen.dart';
+import '../router/app_router.dart';
 
 class CartScreen extends StatefulWidget {
   /// "Start Shopping" button (switch to the Home tab).
@@ -62,8 +61,7 @@ class _CartScreenState extends State<CartScreen> {
       '₹${v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toStringAsFixed(2)}';
 
   void _openProduct(CartItemModel item) {
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => ProductDetailsScreen(productId: item.productId)));
+    context.push(AppRouter.productPath(item.productId));
   }
 
   void _checkout() {
@@ -78,9 +76,7 @@ class _CartScreenState extends State<CartScreen> {
       return;
     }
 
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => const CheckoutScreen()))
-        .then((_) {
+    context.push(AppRouter.checkout).then((_) {
       // refresh the cart when coming back from checkout
       if (mounted) context.read<CartBloc>().add(const RefreshCartEvent());
     });

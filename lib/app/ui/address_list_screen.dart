@@ -13,7 +13,7 @@ import '../data/models/addressmodel.dart';
 import '../widgets/appsnackbar.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/empty_state_view.dart';
-import 'add_edit_address_screen.dart';
+import '../router/app_router.dart';
 
 /// Saved addresses.
 /// [selectMode] = true is used from checkout: tapping an address chooses it
@@ -57,13 +57,12 @@ class _AddressListScreenState extends State<AddressListScreen> {
   }
 
   void _openForm([AddressModel? address]) {
-    final addressBloc = context.read<AddressBloc>();
-    Navigator.of(context).push<bool>(MaterialPageRoute(
-      builder: (_) => BlocProvider<AddressBloc>.value(
-        value: addressBloc,
-        child: AddEditAddressScreen(address: address),
-      ),
-    ));
+    // AddressBloc is provided above the app, so the form shares it.
+    if (address == null) {
+      context.push<bool>(AppRouter.addressAdd);
+    } else {
+      context.push<bool>(AppRouter.addressEdit, extra: {'address': address});
+    }
   }
 
   Future<void> _confirmDelete(AddressModel a) async {
@@ -135,7 +134,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
     if (!widget.selectMode) return;
     HapticFeedback.selectionClick();
     context.read<AddressBloc>().add(SelectAddressEvent(addressId: a.id));
-    Navigator.of(context).pop(true);
+    context.pop(true);
   }
 
   @override
