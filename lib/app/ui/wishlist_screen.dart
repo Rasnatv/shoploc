@@ -15,7 +15,7 @@ import '../widgets/appsnackbar.dart';
 import '../widgets/empty_state_view.dart';
 import '../widgets/responsive.dart';
 import '../widgets/network_image_with_fallback.dart';
-import 'product_details_screen.dart';
+import '../router/app_router.dart';
 
 class WishlistScreen extends StatefulWidget {
   /// Called by the "Discover Fashion" button (switch to the Home tab).
@@ -74,8 +74,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
 
   void _openProduct(WishlistItemModel item) {
     // Wishlist state is global, so the heart on the details page is already correct.
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => ProductDetailsScreen(productId: item.id)));
+    context.push(AppRouter.productPath(item.id));
   }
 
   String _rupees(double v) =>

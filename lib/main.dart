@@ -12,6 +12,9 @@ import 'app/bloc/addressbloc/address_bloc.dart';
 import 'app/bloc/checkout/checkout_bloc.dart';
 import 'app/bloc/homebloc/home_bloc.dart';
 import 'app/bloc/myorders/myorders_bloc.dart';
+import 'app/bloc/notification/notification_bloc.dart';
+import 'app/bloc/notification/notification_event.dart';
+import 'app/core/services/pushnotificationservice.dart';
 import 'app/widgets/appsnackbar.dart';
 import 'app/widgets/responsive.dart';
 import 'app/bloc/cartbloc/cart_bloc.dart';
@@ -19,11 +22,45 @@ import 'app/bloc/cartbloc/cart_event.dart';
 import 'app/bloc/whishlistbloc/wishlist_bloc.dart';
 import 'app/bloc/whishlistbloc/wishlist_event.dart';
 
+// Future<void> main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//
+//   await ObjectFactory().initPrefs();
+//   await DeviceHelper.init();
+//
+//   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+//     statusBarColor: Colors.transparent,
+//     statusBarIconBrightness: Brightness.dark,
+//     statusBarBrightness: Brightness.light,
+//   ));
+//
+//   await SystemChrome.setPreferredOrientations([
+//     DeviceOrientation.portraitUp,
+//     DeviceOrientation.portraitDown,
+//   ]);
+//
+//   runApp(const MyApp());
+// }
+import 'package:firebase_core/firebase_core.dart';                 // NEW
+import 'package:firebase_messaging/firebase_messaging.dart';       // NEW
+
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await ObjectFactory().initPrefs();
   await DeviceHelper.init();
+
+  // ---------------- NEW: push notifications ----------------
+  // Wrapped in try/catch so the app still starts if Firebase setup fails.
+  try {
+    await Firebase.initializeApp(); // or options: DefaultFirebaseOptions.currentPlatform
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    await PushNotificationService.instance.init();
+  } catch (e) {
+    debugPrint('Push setup failed: $e');
+  }
+  // ---------------------------------------------------------
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
@@ -38,6 +75,8 @@ Future<void> main() async {
 
   runApp(const MyApp());
 }
+
+// MyApp stays exactly the same as your current code
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -58,7 +97,10 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<AddressBloc>(create: (_) => AddressBloc()),
         BlocProvider<CheckoutBloc>(create: (_) => CheckoutBloc()),
-    BlocProvider<OrderBloc>(create: (_) => OrderBloc()),
+        BlocProvider<OrderBloc>(create: (_) => OrderBloc()),
+        BlocProvider<NotificationBloc>(
+          create: (_) => NotificationBloc()..add(const LoadNotificationsEvent()),
+        ),
       ],
       child: MaterialApp.router(
         title: 'Shoploc',

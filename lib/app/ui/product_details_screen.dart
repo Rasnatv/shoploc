@@ -10,6 +10,7 @@ import '../bloc/productdetailbloc/productdetail_event.dart';
 import '../bloc/productdetailbloc/productdetail_state.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_style.dart';
+import '../core/utils/object_factory.dart';
 import '../data/models/productdetailmodel.dart';
 import '../data/models/whishlistmodel.dart';
 import '../widgets/appsnackbar.dart';
@@ -20,6 +21,9 @@ import '../bloc/whishlistbloc/wishlist_bloc.dart';
 import '../bloc/whishlistbloc/wishlist_event.dart';
 import '../bloc/whishlistbloc/wishlist_state.dart';
 import '../widgets/responsive.dart';
+import 'package:go_router/go_router.dart';
+import '../router/app_router.dart';
+import 'confirmorder.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
   final int productId;
@@ -134,10 +138,41 @@ class _ViewState extends State<_View> {
     ));
   }
 
-  void _handleBuyNow(ProductDetailsModel p) {
+  /// Buy Now: validate the selection, make sure the user is logged in,
+  /// then open the Confirm Order screen (address + product + price details).
+  Future<void> _handleBuyNow(ProductDetailsModel p) async {
     final v = _validate(p);
     if (v == null) return;
-    // TODO: AddToCart then open CheckoutScreen
+
+    if (!(ObjectFactory().prefs.isLoggedIn() ?? false)) {
+      final ok = await context.push<bool>(AppRouter.auth,
+          extra: {'isRegister': false, 'fromOnboarding': false});
+      if (ok != true || !mounted) return;
+    }
+
+    // picture of the selected colour (falls back to the first image)
+    final images = p.images;
+    final shot = images.where((i) => i.colorId == v.colorId);
+    final image = shot.isNotEmpty
+        ? shot.first.image
+        : (images.isNotEmpty ? images.first.image : '');
+
+    context.push(
+      AppRouter.buyNow,
+      extra: BuyNowArgs(
+        productId: p.id,
+        name: p.name,
+        image: image,
+        colorId: v.colorId,
+        colorName: v.colorName,
+        size: v.size,
+        quantity: _quantity,
+        maxQuantity: v.stock,
+        price: p.price,
+        originalPrice: p.hasDiscount ? p.originalPrice : p.price,
+        shippingCharge: p.shippingCharge,
+      ),
+    );
   }
 
   // ---------- build ----------
@@ -304,7 +339,7 @@ class _ViewState extends State<_View> {
             padding: EdgeInsets.zero,
             icon: Icon(Icons.arrow_back_ios_new,
                 size: _s(16), color: Colors.black),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => AppRouter.back(context),
           ),
         ),
       ),

@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shoploc/app/ui/product_details_screen.dart';
-import 'package:shoploc/app/ui/trendingscreen.dart';
 import '../bloc/homebloc/home_bloc.dart';
 import '../bloc/homebloc/home_event.dart';
 import '../bloc/homebloc/home_state.dart';
+import '../bloc/notification/notification_bloc.dart';
+import '../bloc/notification/notification_state.dart';
 import '../core/utils/object_factory.dart';
 import '../bloc/recentview/recentview_bloc.dart';
 import '../bloc/recentview/recentview_event.dart';
@@ -22,10 +22,8 @@ import '../widgets/product_card.dart';
 import '../widgets/responsive.dart';
 import '../widgets/section_header.dart';
 import '../widgets/shoploc_logo.dart';
-import 'bestsellerscreen.dart';
-import 'categories_screen.dart';
-import 'newarrivalscreen.dart';
-import 'recentviewscreen.dart';
+import 'package:go_router/go_router.dart';
+import '../router/app_router.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onNavigateToCategory;
@@ -126,8 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ---- Navigation hooks ----
   Future<void> _openProduct(HomeProductModel product) async {
-    await Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => ProductDetailsScreen(productId: product.id)));
+    await context.push(AppRouter.productPath(product.id));
     // The product was saved as "recently viewed" -> refresh the section
     if (mounted) _recentBloc.add(const RefreshRecentViewsEvent());
   }
@@ -135,32 +132,15 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Opens the Categories page with [category] already selected.
   /// For a subcategory pill, pass its PARENT category.
   void _openCategory(CategoryApiModel category) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => CategoriesScreen(initialCategory: category),
-    ));
+    context.push(AppRouter.categories, extra: {'category': category});
   }
 
   void _openSearch() {
-    // TODO: open search screen
+    context.push(AppRouter.search);
   }
 
   Future<void> _seeAll(ProductListType type) async {
-    final Widget page;
-    switch (type) {
-      case ProductListType.newArrivals:
-        page = const NewArrivalsScreen();
-        break;
-      case ProductListType.trending:
-        page = const TrendingScreen();
-        break;
-      case ProductListType.bestSellers:
-        page = const BestSellersScreen();
-        break;
-      case ProductListType.recentViews:
-        page = const RecentViewsScreen();
-        break;
-    }
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+    await context.push(AppRouter.listPath(type));
     if (mounted) _recentBloc.add(const RefreshRecentViewsEvent());
   }
 
@@ -187,10 +167,19 @@ class _HomeScreenState extends State<HomeScreen> {
         titleSpacing: 16,
         title: const ShoplocLogo(fontSize: 50),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none_rounded, size: 24),
-            onPressed: () {
-              // TODO: notifications screen
+          BlocBuilder<NotificationBloc, NotificationState>(
+            builder: (context, state) {
+              final unread =
+              state is NotificationLoadedState ? state.unreadCount : 0;
+              return IconButton(
+                icon: Badge(
+                  isLabelVisible: unread > 0,
+                  label: Text(unread > 9 ? '9+' : '$unread'),
+                  backgroundColor: AppColors.error,
+                  child: const Icon(Icons.notifications_none_rounded, size: 24),
+                ),
+                onPressed: () => context.push(AppRouter.notifications),
+              );
             },
           ),
           const SizedBox(width: 6),

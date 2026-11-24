@@ -95,6 +95,8 @@ class ApiConstants {
   static const String orders = '/orders';
   static const String priceSummary = '/product/price-summary';
 
+  static const String notifications = '/notifications';
+
 
 
 }

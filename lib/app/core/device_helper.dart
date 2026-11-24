@@ -33,10 +33,7 @@ class DeviceHelper {
       }
     } catch (_) {}
 
-    // No FCM. The API still receives the fcm_token field.
-    // Change '' to a placeholder like 'no_fcm' if the backend rejects an empty value.
-    // prefs.setFcmToken(fcmToken: '');
-    // No FCM yet. Replace this with the real token when push notifications are added.
-    prefs.setFcmToken(fcmToken: 'no_fcm');
+    if ((prefs.getFcmToken() ?? '').isEmpty) prefs.setFcmToken(fcmToken: 'no_fcm');
   }
 }
+

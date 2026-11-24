@@ -263,4 +263,9 @@ class ApiClient {
       {required int productId, required int quantity}) =>
       dio.post(ApiConstants.priceSummary,
           data: {'product_id': productId, 'quantity': quantity});
+
+  // ---------------- NOTIFICATIONS ----------------
+
+  /// GET /notifications
+  Future<Response> getNotifications() => dio.get(ApiConstants.notifications);
 }

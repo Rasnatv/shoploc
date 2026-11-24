@@ -408,6 +408,7 @@ import '../ui/enquiry_screen.dart';
 import '../ui/faq_screen.dart';
 import '../ui/main_bottom_nav_screen.dart';
 import '../ui/newarrivalscreen.dart';
+import '../ui/notifications_screen.dart';
 import '../ui/onboarding_screen.dart';
 import '../ui/orders_screen.dart';
 import '../ui/otp_screen.dart';
@@ -504,6 +505,7 @@ class AppRouter {
   static const String privacyPolicy = '/privacy-policy';
   static const String terms = '/terms';
   static const String about = '/about';
+  static const String notifications = '/notifications';
 
   // ===================== helpers =====================
 
@@ -752,6 +754,10 @@ class AppRouter {
       GoRoute(
         path: about,
         builder: (context, state) => const AboutUsScreen(),
+      ),
+      GoRoute(
+        path: notifications,
+        builder: (context, state) => const NotificationsScreen(),
       ),
     ],
   );

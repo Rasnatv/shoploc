@@ -6,20 +6,19 @@ import '../core/theme/app_text_style.dart';
 import '../core/utils/object_factory.dart';
 import '../widgets/shoploc_logo.dart';
 
-
 class OnboardingItem {
   final String tag;
-  final String categoryTag;
   final String title;
   final String description;
   final String imageUrl;
+  final Color accent;
 
   const OnboardingItem({
     required this.tag,
-    required this.categoryTag,
     required this.title,
     required this.description,
     required this.imageUrl,
+    required this.accent,
   });
 }
 
@@ -47,30 +46,35 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   late final AnimationController _ambientController;
   late final Animation<double> _ambientAnimation;
 
+  // Put these 3 images in assets/images/ with exactly these names
+  // (or change the names below):
+  //   onboarding_shop.png      -> phone with store awning, dress & teddy
+  //   onboarding_cart.png      -> shopping cart with colourful bags
+  //   onboarding_delivery.png  -> ShopLoc delivery rider on scooter
   final List<OnboardingItem> _pages = const [
     OnboardingItem(
-      categoryTag: 'DISCOVER 01 OF 03',
-      tag: '✨ Trending Fashion & Local Drops',
-      title: 'Fashion, Toys &\nEveryday Essentials',
+      tag: '🏪 Welcome to ShopLoc',
+      title: 'Our Store,\nNow On Your Phone',
       description:
-      'Explore top boutique fashion, kids toys, creative games, and lifestyle essentials curated directly from verified neighborhood stores.',
-      imageUrl: 'assets/images/onboarding.jpg',
+      'Everything from our store, now on your phone. Browse what you like and order with ease.',
+      imageUrl: 'assets/images/onbaording/onboarding1.png',
+      accent: AppColors.brandBlue,
     ),
     OnboardingItem(
-      categoryTag: 'COLLECTION 02 OF 03',
-      tag: '🧸 Fun Toys & Kids Zone',
-      title: 'Exciting Toys &\nFamily Favorites',
+      tag: '⚡ Quick & Easy Ordering',
+      title: 'Pick What You Love,\nOrder In Seconds',
       description:
-      'From educational STEM puzzles, board games, and RC cars to cuddly soft toys and baby essentials — delighting every child and family.',
-      imageUrl: 'assets/images/onboarding2.png',
+      'Add your favourite items to the cart and complete your order in just a few taps. Simple and smooth.',
+      imageUrl: 'assets/images/onbaording/onbaording2.png',
+      accent: AppColors.brandOrange,
     ),
     OnboardingItem(
-      categoryTag: 'EXPERIENCE 03 OF 03',
-      tag: '🚀 Shop Local • Shop Smart',
-      title: 'Direct From Local Stores\nTo Your Doorstep',
+      tag: '🛵 Fast Local Delivery',
+      title: 'Delivered To Your\nDoorstep, Fast',
       description:
-      'Support your favorite neighborhood boutiques, toy shops, and local makers across Kerala & India with fast, trackable doorstep delivery.',
-      imageUrl: 'assets/images/ondelivered.png',
+      'A ShopLoc rider brings your order straight from our store to your door, with easy tracking.',
+      imageUrl: 'assets/images/onbaording/onboarding3.png',
+      accent: AppColors.brandBlue,
     ),
   ];
 
@@ -158,6 +162,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       backgroundColor: AppColors.scaffoldBackground,
       body: Stack(
         children: [
+          // Ambient background glows
           AnimatedBuilder(
             animation: _ambientAnimation,
             builder: (context, child) {
@@ -289,9 +294,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                       final double diff =
                       (_pageValue - index).abs().clamp(0.0, 1.0);
-                      final double cardScale = 1.0 - (diff * 0.08);
-                      final double cardOpacity = 1.0 - (diff * 0.25);
-                      final double parallaxX = (_pageValue - index) * 35.0;
+                      final double imgScale = 1.0 - (diff * 0.10);
+                      final double imgOpacity = 1.0 - (diff * 0.45);
+                      final double parallaxX = (_pageValue - index) * 45.0;
+
+                      final double imageAreaHeight =
+                      (size.height * 0.42).clamp(270.0, 400.0);
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -300,58 +308,73 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           children: [
                             const Spacer(flex: 1),
 
+                            // Illustration area
                             Transform.scale(
-                              scale: cardScale,
+                              scale: imgScale,
                               child: Opacity(
-                                opacity: cardOpacity,
-                                child: Container(
-                                  height:
-                                  (size.height * 0.44).clamp(260.0, 400.0),
+                                opacity: imgOpacity,
+                                child: SizedBox(
+                                  height: imageAreaHeight,
                                   width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(26),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppColors.brandBlue
-                                            .withValues(alpha: 0.12),
-                                        blurRadius: 26,
-                                        offset: const Offset(0, 12),
-                                        spreadRadius: 1,
-                                      ),
-                                      const BoxShadow(
-                                        color: AppColors.shadowMedium,
-                                        blurRadius: 12,
-                                        offset: Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  clipBehavior: Clip.antiAlias,
                                   child: Stack(
-                                    fit: StackFit.expand,
+                                    alignment: Alignment.center,
                                     children: [
+                                      // Soft colour blob behind the image
                                       Transform.translate(
-                                        offset: Offset(parallaxX, 0),
-                                        child: Image.asset(
-                                          page.imageUrl,
-                                          fit: BoxFit.cover,
-                                          width: double.infinity,
-                                          height: double.infinity,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return const Center(
-                                              child: Icon(
-                                                Icons
-                                                    .image_not_supported_outlined,
-                                                size: 40,
-                                              ),
-                                            );
-                                          },
+                                        offset: Offset(parallaxX * 0.4, 0),
+                                        child: Container(
+                                          width: imageAreaHeight * 0.88,
+                                          height: imageAreaHeight * 0.88,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            gradient: RadialGradient(
+                                              colors: [
+                                                page.accent
+                                                    .withValues(alpha: 0.16),
+                                                page.accent
+                                                    .withValues(alpha: 0.04),
+                                              ],
+                                            ),
+                                          ),
                                         ),
                                       ),
+
+                                      // Floating illustration
+                                      AnimatedBuilder(
+                                        animation: _ambientAnimation,
+                                        builder: (context, child) {
+                                          final floatY =
+                                              (_ambientAnimation.value - 0.5) *
+                                                  12.0;
+                                          return Transform.translate(
+                                            offset: Offset(parallaxX, floatY),
+                                            child: child,
+                                          );
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 22),
+                                          child: Image.asset(
+                                            page.imageUrl,
+                                            fit: BoxFit.contain,
+                                            height: imageAreaHeight - 22,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return const Center(
+                                                child: Icon(
+                                                  Icons
+                                                      .image_not_supported_outlined,
+                                                  size: 40,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+
+                                      // Tag chip
                                       Positioned(
-                                        bottom: 14,
-                                        left: 14,
-                                        right: 14,
+                                        bottom: 0,
                                         child: FadeTransition(
                                           opacity: _badgeFadeAnimation,
                                           child: SlideTransition(
@@ -359,34 +382,36 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                             child: Container(
                                               padding:
                                               const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 7,
+                                                horizontal: 14,
+                                                vertical: 8,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: Colors.black
-                                                    .withValues(alpha: 0.65),
+                                                color: AppColors.surface,
                                                 borderRadius:
                                                 BorderRadius.circular(20),
                                                 border: Border.all(
-                                                  color: Colors.white
+                                                  color: page.accent
                                                       .withValues(alpha: 0.35),
-                                                  width: 0.8,
+                                                  width: 1,
                                                 ),
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Text(
-                                                    page.tag,
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 11.5,
-                                                      fontWeight:
-                                                      FontWeight.w700,
-                                                      letterSpacing: 0.4,
-                                                    ),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: page.accent
+                                                        .withValues(
+                                                        alpha: 0.18),
+                                                    blurRadius: 12,
+                                                    offset: const Offset(0, 4),
                                                   ),
                                                 ],
+                                              ),
+                                              child: Text(
+                                                page.tag,
+                                                style: TextStyle(
+                                                  color: page.accent,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w800,
+                                                  letterSpacing: 0.3,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -400,35 +425,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                             const SizedBox(height: 24),
 
-                            FadeTransition(
-                              opacity: _badgeFadeAnimation,
-                              child: SlideTransition(
-                                position: _badgeSlideAnimation,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.brandOrange
-                                        .withValues(alpha: 0.10),
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                  child: Text(
-                                    page.categoryTag,
-                                    style: const TextStyle(
-                                      fontSize: 10.5,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: 1.8,
-                                      color: AppColors.brandOrange,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 10),
-
+                            // Title
                             FadeTransition(
                               opacity: _titleFadeAnimation,
                               child: SlideTransition(
@@ -449,6 +446,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                             const SizedBox(height: 10),
 
+                            // Description
                             FadeTransition(
                               opacity: _descFadeAnimation,
                               child: SlideTransition(

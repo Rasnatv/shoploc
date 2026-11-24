@@ -20,7 +20,7 @@ import '../widgets/custom_button.dart';
 import '../widgets/empty_state_view.dart';
 import '../widgets/network_image_with_fallback.dart';
 import '../widgets/responsive.dart';
-import 'add_edit_address_screen.dart';
+import '../router/app_router.dart';
 
 class CheckoutScreen extends StatelessWidget {
   const CheckoutScreen({super.key});
@@ -140,23 +140,14 @@ class _CheckoutViewState extends State<_CheckoutView> {
   }
 
   void _addAddress() {
-    final addressBloc = context.read<AddressBloc>();
-    Navigator.of(context).push<bool>(MaterialPageRoute(
-      builder: (_) => BlocProvider<AddressBloc>.value(
-        value: addressBloc,
-        child: const AddEditAddressScreen(),
-      ),
-    ));
+    // pass the bloc along: CheckoutScreen may have created its own AddressBloc
+    context.push<bool>(AppRouter.addressAdd,
+        extra: {'bloc': context.read<AddressBloc>()});
   }
 
   void _editAddress(AddressModel a) {
-    final addressBloc = context.read<AddressBloc>();
-    Navigator.of(context).push<bool>(MaterialPageRoute(
-      builder: (_) => BlocProvider<AddressBloc>.value(
-        value: addressBloc,
-        child: AddEditAddressScreen(address: a),
-      ),
-    ));
+    context.push<bool>(AppRouter.addressEdit,
+        extra: {'address': a, 'bloc': context.read<AddressBloc>()});
   }
 
   AddressModel? get _selectedAddress {
@@ -417,7 +408,7 @@ class _CheckoutViewState extends State<_CheckoutView> {
     title: 'Your cart is empty',
     message: 'Add items to your cart to continue.',
     buttonText: 'Go Back',
-    onButtonPressed: () => Navigator.of(context).maybePop(),
+    onButtonPressed: () => AppRouter.back(context),
   );
 
   Widget _errorView(String message) {
@@ -463,10 +454,6 @@ class _CheckoutViewState extends State<_CheckoutView> {
                         '2. Items in Order (${state.preview.items.length})'),
                     SizedBox(height: _w(8)),
                     _itemsPreview(state.preview),
-                    SizedBox(height: gap),
-                    _sectionTitle('3. Payment Method'),
-                    SizedBox(height: _w(8)),
-                    _paymentSection(),
                     SizedBox(height: gap),
                     _sectionTitle('4. Price Details'),
                     SizedBox(height: _w(8)),
@@ -688,71 +675,6 @@ class _CheckoutViewState extends State<_CheckoutView> {
     );
   }
 
-  // ---------------- 3. PAYMENT ----------------
-  Widget _paymentSection() {
-    return Container(
-      padding: EdgeInsets.all(_w(12)),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight),
-      ),
-      child: Column(
-        children: [
-          _paymentOption(
-            title: 'Cash on Delivery (COD)',
-            subtitle: 'Pay at your doorstep via cash or UPI',
-            icon: Icons.payments_outlined,
-            value: _cod,
-          ),
-          const Divider(height: 12),
-          _paymentOption(
-            title: 'Online Payment (UPI, Cards, NetBanking)',
-            subtitle: 'Instant secure checkout',
-            icon: Icons.account_balance_wallet_outlined,
-            value: _online,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _paymentOption({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required String value,
-  }) {
-    final isSelected = value == _payment;
-    return GestureDetector(
-      onTap: () => setState(() => _payment = value),
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: _w(6)),
-        child: Row(
-          children: [
-            Icon(
-              isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: isSelected ? AppColors.primary : AppColors.textTertiary,
-              size: 20,
-            ),
-            SizedBox(width: _w(10)),
-            Icon(icon, color: AppColors.primary, size: 22),
-            SizedBox(width: _w(12)),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: AppTextStyle.labelMedium),
-                  Text(subtitle, style: AppTextStyle.caption),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   // ---------------- 4. PRICE ----------------
   Widget _priceDetails(CheckoutSummaryResponse s) {

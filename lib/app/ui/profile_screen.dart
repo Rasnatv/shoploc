@@ -4,8 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shoploc/app/core/utils/object_factory.dart';
-import 'package:shoploc/app/ui/termsandcondition.dart';
-import 'package:shoploc/app/ui/wishlist_screen.dart';
 import 'package:shoploc/app/widgets/appsnackbar.dart';
 import 'package:shoploc/app/widgets/responsive.dart';
 import '../bloc/cartbloc/cart_bloc.dart';
@@ -15,15 +13,7 @@ import '../bloc/whishlistbloc/wishlist_event.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_style.dart';
 import '../widgets/custom_button.dart';
-import 'address_list_screen.dart';
-import 'cancellation_policy_screen.dart';
-import 'enquiry_screen.dart';
-import 'faq_screen.dart';
-import 'notifications_screen.dart';
-import 'orders_screen.dart';
-import 'privacy_policy_screen.dart';
-import 'refund_policy_screen.dart';
-import 'static_pages.dart';
+import '../router/app_router.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback? onNavigateToOrders;
@@ -177,21 +167,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.receipt_long_outlined,
                     title: 'My orders',
                     subtitle: 'Track, view and reorder past purchases',
-                    onTap: () {},
-                    // widget.onNavigateToOrders ??
-                    //         () => _push(const OrdersScreen()),
-                  ),
+                    onTap: () => _push(AppRouter.orders),),
                   _buildTile(
                     icon: Icons.location_on_outlined,
                     title: 'Delivery addresses',
                     subtitle: 'Manage your shipping locations',
-                    onTap: () => _push(const AddressListScreen()),
+                    onTap: () => _push(AppRouter.addresses),
                   ),
                   _buildTile(
                     icon: Icons.favorite_border_rounded,
                     title: 'My wishlist',
                     subtitle: 'Pieces you have saved',
-                    onTap: () => _push(WishlistScreen()),
+                    onTap: () => _push(AppRouter.wishlist),
                     // onTap: widget.onNavigateToWishlist ?? () {},
                   ),
                   _buildTile(
@@ -212,43 +199,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.help_outline_rounded,
                     title: 'Questions',
                     subtitle: 'Answers on orders, shipping and payments',
-                    onTap: () => _push(const QuestionsScreen()),
+                    onTap: () => _push(AppRouter.faq),
                   ),
                   _buildTile(
                     icon: Icons.support_agent_outlined,
                     title: 'Help and customer support',
                     subtitle: 'Enquiry desk, location, phone and message',
-                    onTap: () => _push(const EnquiryScreen()),
+                    onTap: () => _push(AppRouter.enquiry),
                   ),
                   _buildTile(
                     icon: Icons.currency_rupee_rounded,
                     title: 'Refund policy',
                     subtitle: 'Returns, damage and reversals',
-                    onTap: () => _push(const RefundPolicyScreen()),
+                    onTap: () => _push(AppRouter.refundPolicy),
                   ),
                   _buildTile(
                     icon: Icons.cancel_outlined,
                     title: 'Cancellation policy',
                     subtitle: 'Cancellation windows and timelines',
-                    onTap: () => _push(const CancellationPolicyScreen()),
+                    onTap: () => _push(AppRouter.cancellationPolicy),
                   ),
                   _buildTile(
                     icon: Icons.policy_outlined,
                     title: 'Privacy policy',
                     subtitle: 'How we protect your data',
-                    onTap: () => _push(const PrivacyPolicyScreen()),
+                    onTap: () => _push(AppRouter.privacyPolicy),
                   ),
                   _buildTile(
                     icon: Icons.description_outlined,
                     title: 'Terms and conditions',
                     subtitle: 'Shopping and usage agreements',
-                    onTap: () => _push(const TermsConditionsScreen()),
+                    onTap: () => _push(AppRouter.terms),
                   ),
                   _buildTile(
                     icon: Icons.info_outline_rounded,
                     title: 'About Shoploc',
                     subtitle: 'Our mission and regional artisan story',
-                    onTap: () => _push(const AboutUsScreen()),
+                    onTap: () => _push(AppRouter.about),
                   ),
                 ],
               ),
@@ -287,9 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _push(Widget screen) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
-  }
+  void _push(String location) => context.push(location);
 
   Widget _buildHeader({
     required bool isLoggedIn,
