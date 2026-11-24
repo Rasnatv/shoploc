@@ -131,4 +131,5 @@ class Prefs {
   Future<void> clearPrefs() async {
     await _sharedPreferences?.clear();
   }
+
 }

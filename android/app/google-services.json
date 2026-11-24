@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "274839615844",
+    "project_id": "shoploc-26489",
+    "storage_bucket": "shoploc-26489.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:274839615844:android:d076d0be91f712b1642271",
+        "android_client_info": {
+          "package_name": "com.astraz.shoploc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuy9rXQ5tQTHizAetdjo56B7lAuDHXo_4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shoploc/app/bloc/authbloc/auth_bloc.dart';
 import 'package:shoploc/app/core/device_helper.dart';
 import 'package:shoploc/app/core/utils/object_factory.dart';
+import 'package:shoploc/app/notification_services.dart';
 import 'package:shoploc/app/router/app_router.dart';
 
 import 'app/bloc/addressbloc/address_bloc.dart';
@@ -47,8 +48,13 @@ import 'package:firebase_messaging/firebase_messaging.dart';       // NEW
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
 
+  // Initialize SharedPreferences
   await ObjectFactory().initPrefs();
+
+  // Init Notifications
+  await NotificationService.instance.init();
   await DeviceHelper.init();
 
   // ---------------- NEW: push notifications ----------------
